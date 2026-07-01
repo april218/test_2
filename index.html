@@ -167,7 +167,7 @@
             renderQuestion();
         }
 
-        // ★ [디자인 가이드라인 및 완벽한 엔터(줄바꿈) 구조 반영 구역]
+        // ★ [디자인 가이드라인 및 줄바꿈 구조 완벽 유지 반영 구역]
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
@@ -400,6 +400,12 @@
         .option-btn.opt-hover-2:hover { border-color: #1C03E1 !important; background: rgba(28, 3, 225, 0.12) !important; box-shadow: 0 0 20px rgba(28, 3, 225, 0.45) !important; }
         .option-btn.opt-hover-3:hover { border-color: #02076D !important; background: rgba(2, 7, 109, 0.15) !important; box-shadow: 0 0 20px rgba(2, 7, 109, 0.45) !important; }
         .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 0 auto; }
+        
+        /* ★ 테스트 질문창 전용 파트너사 로고 배치용 컨테이너 추가 */
+        .test-partner-logos { display: flex; justify-content: center; align-items: center; gap: 24px; margin-top: 32px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        .test-partner-logos img { height: 26px; max-width: 100px; object-fit: contain; opacity: 0.65; transition: opacity 0.2s; }
+        .test-partner-logos img:hover { opacity: 1; }
+
         .result-title { font-size: 16px; color: #FFD700; font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .result-type { font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 24px; color: #7BFD57; }
         .result-char { width: 220px; height: 220px; margin: 0 auto 24px auto; display: block; object-fit: contain; }
@@ -530,7 +536,12 @@
             <div class="glass-box">
                 <div id="question-text" class="question-text">질문 불러오는 중...</div>
                 <div id="options" class="options-container"></div>
-                <button class="btn-prev" onclick="prevQuestion()">[ 이전 문항으로 ]</button>
+                <button class="btn-prev" onclick="prevQuestion()" style="margin-bottom: 8px;">[ 이전 문항으로 ]</button>
+                
+                <div class="test-partner-logos">
+                    <img src="logo-qchamps.png" alt="Q-CHAMPS">
+                    <img src="logo-zowie.png" alt="ZOWIE">
+                </div>
             </div>
         </div>
 
