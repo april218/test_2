@@ -7,17 +7,17 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
-        // ★ [가장 중요] 브라우저가 에러 로그 없이 모든 함수를 100% 인식하도록 최상단에 안정적으로 선언
+        // ★ 브라우저가 에러 로그 없이 모든 함수를 100% 인식하도록 최상단에 안정적으로 선언
         let userGender = "";
         let currentIdx = 0;
         let selections = []; 
 
-        // ★ 기획하신 화면 계층 연출 가이드를 완벽히 녹여내기 위해 질문, 예시, 행동유도 질문을 명확히 분리 데이터화했습니다.
+        // ★ 요청하신 7가지 문항 리스트 전면 교체 및 Q3, Q5 전용 레이아웃 매칭 데이터 구조
         const questions = [
             {
-                q: "새로운 게임을 시작했을 때 당신은?",
+                q: "새로운 게임을 시작했을 때, 당신은?",
                 example: "",
-                action: "당신은?",
+                action: "",
                 options: [
                     { text: "공략이나 정보를 찾아보고 준비한다.", type: "제육" },
                     { text: "일단 시작하고 몸으로 부딪혀 본다.", type: "로제" },
@@ -27,16 +27,16 @@
             {
                 q: "게임 이벤트가 시작되었다.",
                 example: "",
-                action: "당신은?",
+                action: "",
                 options: [
                     { text: "보상과 참여 조건부터 확인한다.", type: "제육" },
-                    { text: "일단 들어가서 구경해본다.", type: "로제" },
-                    { text: "누구랑 같이 참여하면 재밌을지 생각한다.", type: "치킨" }
+                    { text: "누구랑 같이 참여하면 재밌을지 생각한다.", type: "치킨" },
+                    { text: "일단 들어가서 구경해본다.", type: "로제" }
                 ]
             },
             {
                 q: "게임을 하다가 예상치 못한 상황이 발생했다.",
-                example: "(예시: 갑자기 어려운 보스가 등장했다 / 예상하지 못한 변수(크랙)로 게임이 꼬였다.)",
+                example: "예시)\n갑자기 어려운 보스가 등장했다\n예상하지 못한 변수(크랙)로 게임이 꼬였다.",
                 action: "당신의 반응은?",
                 options: [
                     { text: "왜 이런 상황이 발생했는지 원인을 찾는다.", type: "제육" },
@@ -47,16 +47,16 @@
             {
                 q: "게임을 마친 후 가장 기억에 남는 것은?",
                 example: "",
-                action: "당신은?",
+                action: "",
                 options: [
                     { text: "목표를 달성했던 순간", type: "제육" },
-                    { text: "예상하지 못했던 특별한 경험", type: "로제" },
-                    { text: "함께 플레이하며 웃었던 순간", type: "치킨" }
+                    { text: "함께 플레이하며 웃었던 순간", type: "치킨" },
+                    { text: "예상하지 못했던 특별한 경험", type: "로제" }
                 ]
             },
             {
                 q: "게임을 플레이하던 중 중요한 선택의 순간이 찾아왔다.",
-                example: "(예시: 새로운 장비나 캐릭터 육성 방향 결정 / 어떤 전략을 사용할지 선택 / FPS 정면승부 vs 우회 뒤잡기 상황)",
+                example: "예시)\n새로운 장비나 캐릭터 육성 방향을 결정해야 한다.\n어떤 전략을 사용할지 선택해야 한다.\nFPS라면 정면 승부를 할지, 우회해서 뒤를 잡을지 고민되는 상황이다.",
                 action: "당신은?",
                 options: [
                     { text: "정보를 찾아보며 가장 효율적인 선택을 한다.", type: "제육" },
@@ -67,17 +67,17 @@
             {
                 q: "게임을 오래 하다 보면 어떤 플레이를 선호하게 되는가?",
                 example: "",
-                action: "당신은?",
+                action: "",
                 options: [
                     { text: "목표를 정하고 하나씩 달성하는 플레이", type: "제육" },
-                    { text: "새로운 방식 and 도전을 시도하는 플레이", type: "로제" },
+                    { text: "새로운 방식과 도전을 시도하는 플레이", type: "로제" },
                     { text: "친구들과 함께 즐기는 플레이", type: "치킨" }
                 ]
             },
             {
                 q: "게임 속 내 포지션은?",
                 example: "",
-                action: "당신은?",
+                action: "",
                 options: [
                     { text: "팀의 방향을 정하고 전략을 고민하는 리더형", type: "제육" },
                     { text: "새로운 시도를 즐기며 변수를 만드는 플레이어", type: "로제" },
@@ -143,7 +143,7 @@
             window.scrollTo(0, 0);
         }
 
-        // [F12 Error 완전 차단 확인] 테스트 시작 버튼 매핑 함수
+        // 테스트 시작 버튼 매핑 함수
         function startTest() {
             showPage('gender-page');
         }
@@ -167,42 +167,43 @@
             renderQuestion();
         }
 
-        // ★ [핵심 디자인 가이드 반영 구역] 줄바꿈 엔터키 처리와 폰트 크기, 볼드체 분리 연출을 동적 설계했습니다.
+        // ★ [디자인 가이드라인 정밀 반영] 예시와 유저 질문을 동일하게 작은 크기 + 얇은 폰트 + 흰색 불투명도 85% 세트로 일원화했습니다.
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
             
-            // 질문 레이아웃 컨테이너
             const qTextContainer = document.getElementById('question-text');
-            qTextContainer.innerHTML = ""; // 기존 텍스트 청소
+            qTextContainer.innerHTML = ""; // 기존 노출 텍스트 지우기
 
-            // 1층 & 2층: 질문 n. 및 상황 질문 (24px 메인크기, 굵은 폰트)
+            // 1층 & 2층: 질문 번호 및 상황 질문 (24px 메인 크기, 굵은 폰트)
             const mainTitle = document.createElement('div');
             mainTitle.style.fontSize = "24px";
             mainTitle.style.fontWeight = "800";
             mainTitle.style.marginBottom = "14px";
+            mainTitle.style.color = "#FFFFFF";
             mainTitle.innerText = `질문 ${currentIdx + 1}.\n${qData.q}`;
             qTextContainer.appendChild(mainTitle);
 
-            // 3층: 예시란 (기존 메인창보다 확실히 작은 15px, 볼드체 없는 얇은 폰트, 투명도로 연출 보완)
+            // 3층: 예시 구역 (작은 15px 크기, 얇은 Regular/Light 굵기, 불투명도 85% 흰색 매칭)
             if(qData.example && qData.example.trim() !== "") {
                 const exampleSub = document.createElement('div');
                 exampleSub.style.fontSize = "15px";
                 exampleSub.style.fontWeight = "400";
-                exampleSub.style.opacity = "0.85";
+                exampleSub.style.color = "rgba(255, 255, 255, 0.85)";
                 exampleSub.style.marginBottom = "14px";
                 exampleSub.style.lineHeight = "1.6";
+                exampleSub.style.whiteSpace = "pre-line"; // 엔터키 반영 구조 보장
                 exampleSub.innerText = qData.example;
                 qTextContainer.appendChild(exampleSub);
             }
 
-            // 4층: 유저 행동유도 질문 (예시와 똑같이 작은 15px 크기, 그러나 굵은 볼드체 폰트 구조화)
+            // 4층: 유저 행동유도 질문 구역 (★ 예시와 완전히 동일하게 작은 15px, 얇은 굵기, 불투명도 85% 흰색 통일 적용)
             if(qData.action && qData.action.trim() !== "") {
                 const actionTitle = document.createElement('div');
                 actionTitle.style.fontSize = "15px";
-                actionTitle.style.fontWeight = "800";
-                actionTitle.style.color = "#7BFD57"; // 시선 집중 포인트 매칭
+                actionTitle.style.fontWeight = "400";
+                actionTitle.style.color = "rgba(255, 255, 255, 0.85)";
                 actionTitle.innerText = qData.action;
                 qTextContainer.appendChild(actionTitle);
             }
@@ -274,7 +275,7 @@
             document.getElementById('result-headline-text').innerText = data.headline;
             document.getElementById('result-analysis-text').innerText = data.analysis;
             document.getElementById('result-drink-text').innerText = `당신과 닮은 음료: ${data.drink}`;
-            document.getElementById('result-avatar').src = userGender === 'male' ? data.imgM : data.imgF;
+            document.getElementById('result-avatar').src = data.imgM;
         }
 
         async function fetchAndRenderStats() {
