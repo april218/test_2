@@ -52,6 +52,7 @@
             padding: 40px 24px; 
         }
         
+        /* ★ 화면 전환 오류 완전 해결: 자바스크립트 연동 노출 명령어 최우선순위 강제 부여 */
         .page.active { 
             display: flex !important; 
         }
@@ -590,7 +591,6 @@
             renderQuestion();
         }
 
-        // ★ [선택지 동적 빌드 엔진] 질문 생성 시 인덱스 순서에 따라 호버 클래스(1번, 2번, 3번) 개별 적용
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = ((currentIdx) / questions.length) * 100;
