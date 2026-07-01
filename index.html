@@ -167,7 +167,7 @@
             renderQuestion();
         }
 
-        // ★ [디자인 가이드라인 정밀 반영 수정 구역]
+        // ★ [디자인 가이드라인 및 완벽한 엔터(줄바꿈) 구조 반영 구역]
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
@@ -176,23 +176,24 @@
             const qTextContainer = document.getElementById('question-text');
             qTextContainer.innerHTML = ""; // 기존 노출 텍스트 초기화
 
-            // 1층: 질문 번호 구역 (큰 24px 크기, 굵은 폰트, 라임 색상 지정 완료)
-            const qNumberSpan = document.createElement('span');
-            qNumberSpan.style.color = "#7BFD57";
-            qNumberSpan.style.fontSize = "24px";
-            qNumberSpan.style.fontWeight = "800";
-            qNumberSpan.innerText = `질문 ${currentIdx + 1}. `;
-            qTextContainer.appendChild(qNumberSpan);
+            // 1층: 질문 번호 구역 (라임색, 굵게, display: block으로 완벽하게 엔터 효과 부여)
+            const qNumberBlock = document.createElement('div');
+            qNumberBlock.style.color = "#7BFD57";
+            qNumberBlock.style.fontSize = "24px";
+            qNumberBlock.style.fontWeight = "800";
+            qNumberBlock.style.marginBottom = "6px"; // 번호와 본문 사이 약간의 간격
+            qNumberBlock.innerText = `질문 ${currentIdx + 1}.`;
+            qTextContainer.appendChild(qNumberBlock);
 
-            // 2층: 상황 질문 구역 (큰 24px 크기, 굵은 폰트, 선명한 흰색 지정 완료)
-            const qTitleSpan = document.createElement('span');
-            qTitleSpan.style.color = "#FFFFFF";
-            qTitleSpan.style.fontSize = "24px";
-            qTitleSpan.style.fontWeight = "800";
-            qTitleSpan.innerText = qData.q;
-            qTextContainer.appendChild(qTitleSpan);
+            // 2층: 상황 설명/질문 구역 (선명한 흰색, 굵게, 엔터 자동 적용)
+            const qTitleBlock = document.createElement('div');
+            qTitleBlock.style.color = "#FFFFFF";
+            qTitleBlock.style.fontSize = "24px";
+            qTitleBlock.style.fontWeight = "800";
+            qTitleBlock.innerText = qData.q;
+            qTextContainer.appendChild(qTitleBlock);
 
-            // 3층: 예시 구역 (작은 15px 크기, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
+            // 3층: 예시 구역 (작은 15px 크기, 얇은 굵기 400, 불투명도 85% 흰색 세트화 + 줄바꿈 완벽 노출)
             if(qData.example && qData.example.trim() !== "") {
                 const exampleBlock = document.createElement('div');
                 exampleBlock.style.fontSize = "15px";
@@ -200,12 +201,12 @@
                 exampleBlock.style.color = "rgba(255, 255, 255, 0.85)";
                 exampleBlock.style.marginTop = "14px";
                 exampleBlock.style.lineHeight = "1.6";
-                exampleBlock.style.whiteSpace = "pre-line"; // 엔터키(\n) 줄바꿈 완벽 연출 보장
+                exampleBlock.style.whiteSpace = "pre-line"; // 예시 데이터 내 내부 줄바꿈(\n) 완벽 보장
                 exampleBlock.innerText = qData.example;
                 qTextContainer.appendChild(exampleBlock);
             }
 
-            // 4층: 유저 행동유도 질문 구역 (★ 3층 예시 구역과 완벽히 동일하게 15px, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
+            // 4층: 유저에게 묻는 질문 구역 (3층 예시 구역과 완전히 동일하게 15px, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
             if(qData.action && qData.action.trim() !== "") {
                 const actionBlock = document.createElement('div');
                 actionBlock.style.fontSize = "15px";
