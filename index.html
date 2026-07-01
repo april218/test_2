@@ -15,8 +15,15 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            /* ★ 배경 그라데이션을 화면창(Viewport) 기준으로 고정하고 글만 스크롤되도록 변형 */
-            background: linear-gradient(to top, #BA0C2F 0%, #BA0C2F 40%, #333333 100%);
+            /* ★ 눈을 덜 자극하는 깊은 버건디 매칭 + 비율 조정 + 최하단 오리지널 색상 유지 */
+            background: linear-gradient(to top, 
+                #BA0C2F 0%,     /* 최하단 0~10% 구간은 기존 PANTONE 200C 선명하게 유지 */
+                #BA0C2F 10%, 
+                #8A0721 15%,    /* 중간 영역은 눈이 편안하도록 다소 톤 다운된 딥 버건디 레드 적용 */
+                #8A0721 45%,    /* 붉은기 높이 범위를 화면 하단 약 45~50% 선으로 대폭 제한 */
+                #333333 55%,    /* 상단 영역은 어두운 차콜 그레이로 채워 눈의 피로 최소화 */
+                #333333 100%
+            );
             background-attachment: fixed; /* 배경 화면 고정 */
             background-size: 100% 100vh;  /* 화면 높이에 맞게 가득 채움 */
             color: #FFFFFF;
