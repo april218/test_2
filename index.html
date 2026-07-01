@@ -12,9 +12,12 @@
         let currentIdx = 0;
         let selections = []; 
 
+        // ★ 기획하신 화면 계층 연출 가이드를 완벽히 녹여내기 위해 질문, 예시, 행동유도 질문을 명확히 분리 데이터화했습니다.
         const questions = [
             {
                 q: "새로운 게임을 시작했을 때 당신은?",
+                example: "",
+                action: "당신은?",
                 options: [
                     { text: "공략이나 정보를 찾아보고 준비한다.", type: "제육" },
                     { text: "일단 시작하고 몸으로 부딪혀 본다.", type: "로제" },
@@ -23,6 +26,8 @@
             },
             {
                 q: "게임 이벤트가 시작되었다.",
+                example: "",
+                action: "당신은?",
                 options: [
                     { text: "보상과 참여 조건부터 확인한다.", type: "제육" },
                     { text: "일단 들어가서 구경해본다.", type: "로제" },
@@ -30,7 +35,9 @@
                 ]
             },
             {
-                q: "게임을 하다가 예상치 못한 상황이 발생했다. (예시: 갑자기 어려운 보스가 등장했다 / 예상하지 못한 변수(크랙)로 게임이 꼬였다.) 당신의 반응은?",
+                q: "게임을 하다가 예상치 못한 상황이 발생했다.",
+                example: "(예시: 갑자기 어려운 보스가 등장했다 / 예상하지 못한 변수(크랙)로 게임이 꼬였다.)",
+                action: "당신의 반응은?",
                 options: [
                     { text: "왜 이런 상황이 발생했는지 원인을 찾는다.", type: "제육" },
                     { text: "오히려 승부욕이 불타서 이것저것 시도해본다.", type: "로제" },
@@ -39,6 +46,8 @@
             },
             {
                 q: "게임을 마친 후 가장 기억에 남는 것은?",
+                example: "",
+                action: "당신은?",
                 options: [
                     { text: "목표를 달성했던 순간", type: "제육" },
                     { text: "예상하지 못했던 특별한 경험", type: "로제" },
@@ -46,7 +55,9 @@
                 ]
             },
             {
-                q: "게임을 플레이하던 중 중요한 선택의 순간이 찾아왔다. (예시: 새로운 장비나 캐릭터 육성 방향 결정 / 어떤 전략을 사용할지 선택 / FPS 정면승부 vs 우회 뒤잡기 상황) 당신은?",
+                q: "게임을 플레이하던 중 중요한 선택의 순간이 찾아왔다.",
+                example: "(예시: 새로운 장비나 캐릭터 육성 방향 결정 / 어떤 전략을 사용할지 선택 / FPS 정면승부 vs 우회 뒤잡기 상황)",
+                action: "당신은?",
                 options: [
                     { text: "정보를 찾아보며 가장 효율적인 선택을 한다.", type: "제육" },
                     { text: "직접 해보면서 내 플레이 스타일에 맞는 방법을 찾는다.", type: "로제" },
@@ -55,14 +66,18 @@
             },
             {
                 q: "게임을 오래 하다 보면 어떤 플레이를 선호하게 되는가?",
+                example: "",
+                action: "당신은?",
                 options: [
                     { text: "목표를 정하고 하나씩 달성하는 플레이", type: "제육" },
-                    { text: "새로운 방식과 도전을 시도하는 플레이", type: "로제" },
+                    { text: "새로운 방식 and 도전을 시도하는 플레이", type: "로제" },
                     { text: "친구들과 함께 즐기는 플레이", type: "치킨" }
                 ]
             },
             {
                 q: "게임 속 내 포지션은?",
+                example: "",
+                action: "당신은?",
                 options: [
                     { text: "팀의 방향을 정하고 전략을 고민하는 리더형", type: "제육" },
                     { text: "새로운 시도를 즐기며 변수를 만드는 플레이어", type: "로제" },
@@ -152,11 +167,45 @@
             renderQuestion();
         }
 
+        // ★ [핵심 디자인 가이드 반영 구역] 줄바꿈 엔터키 처리와 폰트 크기, 볼드체 분리 연출을 동적 설계했습니다.
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
-            document.getElementById('question-text').innerText = `질문 ${currentIdx + 1}. ${qData.q}`;
+            
+            // 질문 레이아웃 컨테이너
+            const qTextContainer = document.getElementById('question-text');
+            qTextContainer.innerHTML = ""; // 기존 텍스트 청소
+
+            // 1층 & 2층: 질문 n. 및 상황 질문 (24px 메인크기, 굵은 폰트)
+            const mainTitle = document.createElement('div');
+            mainTitle.style.fontSize = "24px";
+            mainTitle.style.fontWeight = "800";
+            mainTitle.style.marginBottom = "14px";
+            mainTitle.innerText = `질문 ${currentIdx + 1}.\n${qData.q}`;
+            qTextContainer.appendChild(mainTitle);
+
+            // 3층: 예시란 (기존 메인창보다 확실히 작은 15px, 볼드체 없는 얇은 폰트, 투명도로 연출 보완)
+            if(qData.example && qData.example.trim() !== "") {
+                const exampleSub = document.createElement('div');
+                exampleSub.style.fontSize = "15px";
+                exampleSub.style.fontWeight = "400";
+                exampleSub.style.opacity = "0.85";
+                exampleSub.style.marginBottom = "14px";
+                exampleSub.style.lineHeight = "1.6";
+                exampleSub.innerText = qData.example;
+                qTextContainer.appendChild(exampleSub);
+            }
+
+            // 4층: 유저 행동유도 질문 (예시와 똑같이 작은 15px 크기, 그러나 굵은 볼드체 폰트 구조화)
+            if(qData.action && qData.action.trim() !== "") {
+                const actionTitle = document.createElement('div');
+                actionTitle.style.fontSize = "15px";
+                actionTitle.style.fontWeight = "800";
+                actionTitle.style.color = "#7BFD57"; // 시선 집중 포인트 매칭
+                actionTitle.innerText = qData.action;
+                qTextContainer.appendChild(actionTitle);
+            }
             
             let optionsCopy = [...qData.options];
             optionsCopy.sort(() => Math.random() - 0.5);
