@@ -15,8 +15,10 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            /* ★ 그라데이션 높이를 약 60% 수준으로 조정 (#BA0C2F 영역 확장) */
+            /* ★ 배경 그라데이션을 화면창(Viewport) 기준으로 고정하고 글만 스크롤되도록 변형 */
             background: linear-gradient(to top, #BA0C2F 0%, #BA0C2F 40%, #333333 100%);
+            background-attachment: fixed; /* 배경 화면 고정 */
+            background-size: 100% 100vh;  /* 화면 높이에 맞게 가득 채움 */
             color: #FFFFFF;
             min-height: 100vh;
             display: flex;
