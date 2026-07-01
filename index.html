@@ -15,7 +15,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            /* 층 없이 은은한 톤다운 그라데이션 배경창 고정 구조 유지 */
+            /* 층 없이 은은한 톤다운 그라데이션 배경창 고정 구조 */
             background: linear-gradient(to top, 
                 #BA0C2F 0%,     
                 #A00A28 12%,    
@@ -34,7 +34,7 @@
             overflow-x: hidden;
         }
         
-        /* 컴퓨터 브라우저 메인 가로폭 1024px */
+        /* 컴퓨터 브라우저 메인 가로폭 1024px 고정 */
         .container {
             width: 100%;
             max-width: 1024px;
@@ -72,16 +72,14 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* ★ [요청사항 1&2 반영] 상단 헤더 PC 좌우 여백 없앰 + 반투명 글래스 효과 + 좌측/우측 배치 고정 */
+        /* 상단 헤더 PC 좌우 여백 제로 + 반투명 글래스 정렬 구조 고정 */
         header {
-            width: 100vw; /* 화면 좌우 끝까지 100% 채움 */
-            position: left;
-            left: 0;
+            width: 100vw; 
             height: 70px;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: rgba(0, 0, 0, 0.55); /* 반투명 배경 */
+            background: rgba(0, 0, 0, 0.55); 
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -91,7 +89,6 @@
             padding: 0 40px;
         }
         
-        /* 헤더 내부 콘텐츠 정렬 컨테이너 */
         .header-content {
             width: 100%;
             max-width: 1024px;
@@ -123,13 +120,13 @@
         }
         .badge { background: rgba(255, 255, 255, 0.12); padding: 10px 24px; border-radius: 30px; font-size: 15px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); }
         
-        /* ★ [요청사항 3 반영] 평상시 글래스 효과만 가진 버튼 (테두리 흰색) */
+        /* 테스트 시작 버튼: 평상시 투명 글래스(테두리 흰색) */
         .btn-cta {
             background: rgba(255, 255, 255, 0.08); 
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             color: #FFFFFF;
-            border: 1px solid rgba(255, 255, 255, 0.4); /* 흰색 계열 테두리 */
+            border: 1px solid rgba(255, 255, 255, 0.4); 
             padding: 22px;
             font-size: 22px;
             font-weight: 900;
@@ -142,9 +139,9 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        /* ★ 호버 시에만 pantone 200c 테두리의 글래스 효과 박스로 변형 */
+        /* 마우스 호버 시에만 PANTONE 200C 테두리 광채 글래스 박스로 전동 */
         .btn-cta:hover {
-            border-color: #BA0C2F; /* Pantone 200c 테두리 */
+            border-color: #BA0C2F; 
             background: rgba(186, 12, 47, 0.15); 
             box-shadow: 0 0 25px rgba(186, 12, 47, 0.6);
             transform: translateY(-2px);
@@ -177,7 +174,10 @@
         .checklist li { margin-bottom: 6px; }
         .drink-tag { font-size: 14px; font-weight: bold; color: #7BFD57; background: rgba(123, 253, 87, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block; margin-top: auto; }
 
-        /* STEP 02. 성별 선택 화면 */
+        /* STEP 02. 성별 선택 화면 텍스트 두께 가이드 동기화 */
+        .gender-title-bold { font-size: 24px; font-weight: 800; margin-bottom: 12px; text-align: center; }
+        .gender-desc-thin { font-size: 15px; color: #CCCCCC; font-weight: 400; margin-bottom: 30px; text-align: center; }
+
         .gender-container { display: flex; gap: 24px; margin: 40px 0; justify-content: center; }
         .gender-option {
             width: 180px;
@@ -195,16 +195,18 @@
             background: rgba(123, 253, 87, 0.1);
             box-shadow: 0 0 20px rgba(123, 253, 87, 0.3);
         }
-        .btn-next { background: #FFFFFF; color: #333333; font-weight: bold; border: none; padding: 18px; border-radius: 12px; cursor: pointer; max-width: 300px; width: 100%; font-size: 18px; margin: 0 auto; display: block; }
 
-        /* STEP 03. 테스트 문항 */
+        /* STEP 03. 테스트 문항 및 답변 선택지 개별 호버 효과 스타일 */
         .progress-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-bottom: 40px; position: relative; }
         .progress-bar { height: 100%; width: 0%; background: #BA0C2F; border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px #BA0C2F; }
         .question-text { font-size: 24px; font-weight: 800; line-height: 1.5; margin-bottom: 32px; word-break: keep-all; text-align: center; }
         .options-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
         
+        /* 기본 선택지 박스 틀 (글래스모피즘 유지) */
         .option-btn {
             background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 20px;
             border-radius: 14px;
@@ -212,11 +214,29 @@
             text-align: left;
             font-size: 17px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s ease;
             line-height: 1.5;
         }
-        .option-btn:hover { border-color: #1C03E1; background: rgba(28, 3, 225, 0.15); }
-        .option-btn:active { background: rgba(123, 253, 87, 0.2); border-color: #7BFD57; }
+
+        /* 1번 선택지 개별 호버 래핑 */
+        .option-btn.opt-hover-1:hover {
+            border-color: #7BFD57 !important;
+            background: rgba(123, 253, 87, 0.12) !important;
+            box-shadow: 0 0 20px rgba(123, 253, 87, 0.45) !important;
+        }
+        /* 2번 선택지 개별 호버 래핑 */
+        .option-btn.opt-hover-2:hover {
+            border-color: #1C03E1 !important;
+            background: rgba(28, 3, 225, 0.12) !important;
+            box-shadow: 0 0 20px rgba(28, 3, 225, 0.45) !important;
+        }
+        /* 3번 선택지 개별 호버 래핑 */
+        .option-btn.opt-hover-3:hover {
+            border-color: #02076D !important;
+            background: rgba(2, 7, 109, 0.15) !important;
+            box-shadow: 0 0 20px rgba(2, 7, 109, 0.45) !important;
+        }
+        
         .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 0 auto; }
 
         /* STEP 04. 최종 결과 페이지 */
@@ -226,18 +246,12 @@
         .result-headline { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 24px; color: #FFD700; }
         .result-analysis { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; text-align: center; word-break: keep-all; max-width: 700px; margin-left: auto; margin-right: auto; }
         
-        /* 통계 레이아웃 대화면 분할 */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-top: 20px;
-        }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
-
         .stats-title { font-size: 16px; font-weight: bold; margin-bottom: 16px; color: #7BFD57; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; text-align: left; }
         .stat-row { margin-bottom: 14px; font-size: 14px; text-align: left; }
         .stat-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+        
         .stat-track { width: 100%; height: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; }
         .stat-fill { height: 100%; width: 0%; background: #1C03E1; border-radius: 6px; transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1); }
         .stat-fill.jeiyuk { background: #BA0C2F; }
@@ -284,7 +298,7 @@
                     <div class="badge">✔ 약 1분 소요</div>
                     <div class="badge">✔ 나와 닮은 메뉴 추천</div>
                 </div>
-                <button id="start-btn" class="btn-cta" onclick="startTest()" onmouseenter="startTest()">테스트 시작하기</button>
+                <button id="start-btn" class="btn-cta" onclick="startTest()">테스트 시작하기</button>
             </div>
 
             <div class="scroll-section">
@@ -358,8 +372,8 @@
 
         <div id="gender-page" class="page">
             <div class="glass-box" style="margin-top: 40px;">
-                <h2 style="font-size: 24px; margin-bottom: 12px; text-align: center;">결과에 표시될 성별을 선택해주세요.</h2>
-                <p style="font-size: 15px; color: #CCCCCC; margin-bottom: 30px; text-align: center;">선택한 성별은 결과 캐릭터 표시에 활용되며, 성향 결과에는 영향을 주지 않습니다.</p>
+                <h2 class="gender-title-bold">성별을 선택해주세요.</h2>
+                <p class="gender-desc-thin">결과 통계 및 성비 데이터 도출을 위해 기록됩니다.</p>
                 
                 <div class="gender-container">
                     <div class="gender-option" id="gender-m" onclick="selectGender('male')">
@@ -576,6 +590,7 @@
             renderQuestion();
         }
 
+        // ★ [선택지 동적 빌드 엔진] 질문 생성 시 인덱스 순서에 따라 호버 클래스(1번, 2번, 3번) 개별 적용
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = ((currentIdx) / questions.length) * 100;
@@ -589,9 +604,13 @@
             const optionsContainer = document.getElementById('options');
             optionsContainer.innerHTML = "";
             
-            optionsCopy.forEach(opt => {
+            optionsCopy.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
+                
+                // 셔플된 배치 이후 화면 노출 순서(위에서부터 1, 2, 3번째 줄) 기준 개별 클래스 부여
+                btn.classList.add(`opt-hover-${idx + 1}`);
+                
                 btn.innerText = opt.text;
                 btn.onclick = () => selectOption(opt.type);
                 optionsContainer.appendChild(btn);
