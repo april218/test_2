@@ -5,475 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>게임 성향으로 알아보는 나만의 메뉴</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        /* 글로벌 디자인 및 컴퓨터(PC) 화면 최적화 */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Pretendard', -apple-system, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
-        body {
-            /* 층 없이 은은한 톤다운 그라데이션 배경창 고정 구조 */
-            background: linear-gradient(to top, 
-                #BA0C2F 0%,     
-                #A00A28 12%,    
-                #7A081E 30%,    
-                #4D1C24 50%,    
-                #333333 65%,    
-                #333333 100%
-            );
-            background-attachment: fixed; 
-            background-size: 100% 100vh;  
-            color: #FFFFFF;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
-        }
-        
-        /* 컴퓨터 브라우저 메인 가로폭 1024px 고정 */
-        .container {
-            width: 100%;
-            max-width: 1024px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-
-        /* 기본 페이지 제어 숨김 스타일 */
-        .page { 
-            display: none; 
-            width: 100%; 
-            flex-direction: column; 
-            padding: 40px 24px; 
-        }
-        
-        /* ★ 화면 전환 노출 명령어 최우선순위 강제 부여 */
-        .page.active { 
-            display: flex !important; 
-        }
-
-        #home-page { 
-            padding: 0; 
-        }
-
-        /* 글래스모피즘 공통 박스 스타일 */
-        .glass-box {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 20px;
-            padding: 32px; 
-            margin: 24px 20px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        /* 상단 헤더 PC 좌우 여백 제로 + 반투명 글래스 정렬 구조 고정 */
-        header {
-            width: 100vw; 
-            height: 70px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.55); 
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            padding: 0 40px;
-        }
-        
-        .header-content {
-            width: 100%;
-            max-width: 1024px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .logo-text { font-weight: 800; font-size: 20px; color: #7BFD57; }
-        .header-menu-right { display: flex; align-items: center; gap: 32px; }
-        .header-link { color: #FFFFFF; text-decoration: none; font-size: 16px; cursor: pointer; transition: color 0.2s; font-weight: bold; }
-        .header-link:hover { color: #7BFD57; }
-
-        /* STEP 01. 랜딩 메인 홈 상단 인트로 */
-        .welcome-section { 
-            padding: 80px 40px; 
-            text-align: center;
-            background: rgba(0, 0, 0, 0.2);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .main-title { font-size: 42px; font-weight: 900; margin-bottom: 20px; word-break: keep-all; line-height: 1.3; }
-        .sub-copy { font-size: 19px; color: #E0E0E0; margin-bottom: 40px; line-height: 1.6; word-break: keep-all; }
-        
-        .info-badges { 
-            display: flex; 
-            flex-direction: row; 
-            gap: 16px; 
-            margin-bottom: 40px; 
-            justify-content: center; 
-        }
-        .badge { background: rgba(255, 255, 255, 0.12); padding: 10px 24px; border-radius: 30px; font-size: 15px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); }
-        
-        /* 테스트 시작 버튼: 평상시 투명 글래스(테두리 흰색) */
-        .btn-cta {
-            background: rgba(255, 255, 255, 0.08); 
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #FFFFFF;
-            border: 1px solid rgba(255, 255, 255, 0.4); 
-            padding: 22px;
-            font-size: 22px;
-            font-weight: 900;
-            border-radius: 14px;
-            cursor: pointer;
-            max-width: 400px; 
-            width: 100%;
-            margin: 0 auto;
-            display: block;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        /* 마우스 호버 시에만 PANTONE 200C 테두리 광채 글래스 박스로 전동 */
-        .btn-cta:hover {
-            border-color: #BA0C2F; 
-            background: rgba(186, 12, 47, 0.15); 
-            box-shadow: 0 0 25px rgba(186, 12, 47, 0.6);
-            transform: translateY(-2px);
-        }
-        .btn-cta:active { transform: scale(0.98); }
-
-        /* 섹션 소개란 */
-        .scroll-section { padding: 60px 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
-        .section-title { font-size: 28px; font-weight: 800; color: #7BFD57; margin-bottom: 24px; }
-        .section-desc { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; word-break: keep-all; max-width: 800px; margin-left: auto; margin-right: auto; }
-        
-        /* 썸네일 이미지 그리드 */
-        .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
-        @media (max-width: 768px) { .image-grid { grid-template-columns: 1fr 1fr; } } 
-        .recommend-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: #444; border: 1px solid rgba(255, 255, 255, 0.15); }
-
-        /* 메뉴 유형 미리보기 */
-        .preview-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-        @media (max-width: 768px) { .preview-container { grid-template-columns: 1fr; } }
-
-        .preview-card { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 24px; border-top: 4px solid #BA0C2F; border-left: none; text-align: left; display: flex; flex-direction: column; justify-content: space-between; }
-        .preview-name { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
-        .preview-sub { font-size: 13px; color: #FFD700; margin-bottom: 12px; font-weight: bold; }
-        .checklist { list-style: none; margin: 16px 0; font-size: 14px; color: #D0D0D0; line-height: 1.6; }
-        .checklist li { margin-bottom: 6px; }
-        .drink-tag { font-size: 14px; font-weight: bold; color: #7BFD57; background: rgba(123, 253, 87, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block; margin-top: auto; }
-
-        /* STEP 02. 성별 선택 화면 텍스트 두께 가이드 동기화 */
-        .gender-title-bold { font-size: 24px; font-weight: 800; margin-bottom: 12px; text-align: center; }
-        .gender-desc-thin { font-size: 15px; color: #CCCCCC; font-weight: 400; margin-bottom: 30px; text-align: center; }
-
-        .gender-container { display: flex; gap: 24px; margin: 40px 0; justify-content: center; }
-        .gender-option {
-            width: 180px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .gender-option img { width: 90px; height: 90px; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; }
-        .gender-option.selected {
-            border-color: #7BFD57;
-            background: rgba(123, 253, 87, 0.1);
-            box-shadow: 0 0 20px rgba(123, 253, 87, 0.3);
-        }
-
-        .btn-next { background: #FFFFFF; color: #333333; font-weight: bold; border: none; padding: 18px; border-radius: 12px; cursor: pointer; max-width: 300px; width: 100%; font-size: 18px; margin: 0 auto; display: block; }
-
-        /* STEP 03. 테스트 문항 및 답변 선택지 개별 호버 효과 스타일 */
-        .progress-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-bottom: 40px; position: relative; }
-        .progress-bar { height: 100%; width: 0%; background: #BA0C2F; border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px #BA0C2F; }
-        .question-text { font-size: 24px; font-weight: 800; line-height: 1.5; margin-bottom: 32px; word-break: keep-all; text-align: center; }
-        .options-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
-        
-        /* 기본 선택지 박스 틀 (글래스모피즘 유지) */
-        .option-btn {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 14px;
-            color: #FFFFFF;
-            text-align: left;
-            font-size: 17px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            line-height: 1.5;
-        }
-
-        /* 1번 선택지 개별 호버 래핑 */
-        .option-btn.opt-hover-1:hover {
-            border-color: #7BFD57 !important;
-            background: rgba(123, 253, 87, 0.12) !important;
-            box-shadow: 0 0 20px rgba(123, 253, 87, 0.45) !important;
-        }
-        /* 2번 선택지 개별 호버 래핑 */
-        .option-btn.opt-hover-2:hover {
-            border-color: #1C03E1 !important;
-            background: rgba(28, 3, 225, 0.12) !important;
-            box-shadow: 0 0 20px rgba(28, 3, 225, 0.45) !important;
-        }
-        /* 3번 선택지 개별 호버 래핑 */
-        .option-btn.opt-hover-3:hover {
-            border-color: #02076D !important;
-            background: rgba(2, 7, 109, 0.15) !important;
-            box-shadow: 0 0 20px rgba(2, 7, 109, 0.45) !important;
-        }
-        
-        .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 0 auto; }
-
-        /* STEP 04. 최종 결과 페이지 */
-        .result-title { font-size: 16px; color: #FFD700; font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-        .result-type { font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 24px; color: #7BFD57; }
-        .result-char { width: 220px; height: 220px; margin: 0 auto 24px auto; display: block; object-fit: contain; }
-        .result-headline { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 24px; color: #FFD700; }
-        .result-analysis { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; text-align: center; word-break: keep-all; max-width: 700px; margin-left: auto; margin-right: auto; }
-        
-        .stats-title { font-size: 16px; font-weight: bold; margin-bottom: 16px; color: #7BFD57; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; text-align: left; }
-        .stat-row { margin-bottom: 14px; font-size: 14px; text-align: left; }
-        .stat-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
-        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
-        
-        .stat-track { width: 100%; height: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; }
-        .stat-fill { height: 100%; width: 0%; background: #1C03E1; border-radius: 6px; transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1); }
-        .stat-fill.jeiyuk { background: #BA0C2F; }
-        .stat-fill.rose { background: #FF69B4; }
-        .stat-fill.chicken { background: #FFD700; }
-
-        .btn-reset { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 18px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 17px; font-weight: bold; margin-top: 24px; transition: background 0.2s; }
-        .btn-reset:hover { background: rgba(255, 255, 255, 0.25); }
-
-        /* STEP 05. 파트너사 푸터 */
-        footer {
-            margin-top: auto;
-            width: 100%;
-            background: #000000;
-            padding: 32px 40px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 48px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        footer img { height: 40px; max-width: 140px; object-fit: contain; opacity: 0.8; }
-    </style>
-</head>
-<body>
-
-    <header>
-        <div class="header-content">
-            <div class="logo-text">🍱 오늘의 메뉴</div>
-            <div class="header-menu-right">
-                <a class="header-link" href="https://esportscube.creatorlink.net/" target="_blank">큐브</a>
-                <div class="header-link" onclick="scrollToPreview()">메뉴 유형</div>
-            </div>
-        </div>
-    </header>
-
-    <div class="container">
-        <div id="home-page" class="page active">
-            <div class="welcome-section">
-                <h1 class="main-title">🎮 게임 성향으로 알아보는 나만의 메뉴</h1>
-                <p class="sub-copy">당신은 게임을 어떻게 즐기나요?<br>게임 속 선택을 통해 당신과 가장 닮은 메뉴를 찾아보세요!</p>
-                <div class="info-badges">
-                    <div class="badge">✔ 총 7문항</div>
-                    <div class="badge">✔ 약 1분 소요</div>
-                    <div class="badge">✔ 나와 닮은 메뉴 추천</div>
-                </div>
-                <button id="start-btn" class="btn-cta" onclick="startTest()">테스트 시작하기</button>
-            </div>
-
-            <div class="scroll-section">
-                <h2 class="section-title">당신의 플레이 스타일은?</h2>
-                <p class="section-desc">게임을 즐기는 방식은 사람마다 다릅니다. 누군가는 목표를 세고 효율적으로 성장하는 것을 좋아하고, 누군가는 새로운 콘텐츠를 탐험하며 예상치 못한 재미를 찾습니다. 또 누군가는 친구들과 함께하는 순간에서 가장 큰 즐거움을 느끼기도 합니다. 간단한 7개의 질문을 통해 당신의 게임 성향과 가장 닮은 메뉴를 찾아보세요!</p>
-                <div class="image-grid">
-                    <img src="recommend-1.png" alt="추천1" class="recommend-img">
-                    <img src="recommend-2.png" alt="추천2" class="recommend-img">
-                    <img src="recommend-3.png" alt="추천3" class="recommend-img">
-                    <img src="recommend-4.png" alt="추천4" class="recommend-img">
-                </div>
-            </div>
-
-            <div id="preview-section" class="scroll-section">
-                <h2 class="section-title">메뉴 유형 미리보기</h2>
-                
-                <div class="preview-container">
-                    <div class="preview-card">
-                        <div>
-                            <div class="preview-name">🍖 직화 삼겹제육덮밥형</div>
-                            <div class="preview-sub">목표를 향해 나아가는 전략가</div>
-                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">성장과 성취를 중요하게 생각하는 타입입니다. 효율적인 방법을 찾아 차근차근 달성해 나가는 과정에서 즐거움을 느깁니다.</p>
-                            <ul class="checklist">
-                                <li>✔ 목표를 세우고 플레이한다</li>
-                                <li>✔ 공략을 자주 찾아본다</li>
-                                <li>✔ 성장 과정을 즐긴다</li>
-                                <li>✔ 효율성을 선호한다</li>
-                            </ul>
-                        </div>
-                        <div class="drink-tag">☕ 아메리카노</div>
-                    </div>
-
-                    <div class="preview-card">
-                        <div>
-                            <div class="preview-name">🌶️ 로제떡볶이형</div>
-                            <div class="preview-sub">재미를 찾아다니는 탐험가</div>
-                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">정답보다 경험을 중요하게 생각합니다. 새로운 콘텐츠를 발견하거나 독창적인 플레이로 도전을 즐깁니다.</p>
-                            <ul class="checklist">
-                                <li>✔ 새로운 콘텐츠를 좋아한다</li>
-                                <li>✔ 호기심이 많다</li>
-                                <li>✔ 직접 경험을 선호한다</li>
-                                <li>✔ 도전을 즐긴다</li>
-                            </ul>
-                        </div>
-                        <div class="drink-tag">🫐 블루레몬 에이드</div>
-                    </div>
-
-                    <div class="preview-card">
-                        <div>
-                            <div class="preview-name">🍗 순살치킨형</div>
-                            <div class="preview-sub">함께일 때 즐거운 분위기 메이커</div>
-                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">게임은 소통과 연대의 경험입니다. 승패도 중요하지만 함께 웃고 떠들며 추억을 만드는 순간을 소중히 여깁니다.</p>
-                            <ul class="checklist">
-                                <li>✔ 함께하는 게임을 좋아한다</li>
-                                <li>✔ 협동 플레이를 즐긴다</li>
-                                <li>✔ 분위기를 중요하게 생각한다</li>
-                                <li>✔ 사람들과 소통을 좋아한다</li>
-                            </ul>
-                        </div>
-                        <div class="drink-tag">🍓 딸기 스무디</div>
-                    </div>
-                </div>
-            </div>
-
-            <footer>
-                <img src="logo-cube.png" alt="CUBE">
-                <img src="logo-qchamps.png" alt="Q-CHAMPS">
-                <img src="logo-zowie.png" alt="ZOWIE">
-            </footer>
-        </div>
-
-        <div id="gender-page" class="page">
-            <div class="glass-box" style="margin-top: 40px;">
-                <h2 class="gender-title-bold">성별을 선택해주세요.</h2>
-                <p class="gender-desc-thin">결과 통계 및 성비 데이터 도출을 위해 기록됩니다.</p>
-                
-                <div class="gender-container">
-                    <div class="gender-option" id="gender-m" onclick="selectGender('male')">
-                        <img src="char-male.png" alt="남자">
-                        <span style="font-size: 16px; font-weight: bold;">👦 남성</span>
-                    </div>
-                    <div class="gender-option" id="gender-f" onclick="selectGender('female')">
-                        <img src="char-female.png" alt="여자">
-                        <span style="font-size: 16px; font-weight: bold;">👧 여성</span>
-                    </div>
-                </div>
-                <button class="btn-next" onclick="goToQuestion()">다음 단계로 이동</button>
-            </div>
-        </div>
-
-        <div id="question-page" class="page">
-            <div class="progress-container">
-                <div id="progress" class="progress-bar"></div>
-            </div>
-            <div class="glass-box">
-                <div id="question-text" class="question-text">질문 불러오는 중...</div>
-                <div id="options" class="options-container"></div>
-                <button class="btn-prev" onclick="prevQuestion()">[ 이전 문항으로 ]</button>
-            </div>
-        </div>
-
-        <div id="result-page" class="page">
-            <div class="glass-box">
-                <div class="result-title">당신의 게임 성향 매칭 결과</div>
-                <div id="result-type-text" class="result-type">결과 도출 중...</div>
-                <img id="result-avatar" src="" alt="캐릭터" class="result-char">
-                <div id="result-headline-text" class="result-headline"></div>
-                <p id="result-analysis-text" class="result-analysis"></p>
-                
-                <div style="margin-top: 20px; text-align: center;">
-                    <span id="result-drink-text" class="drink-tag" style="font-size: 15px; padding: 8px 16px;"></span>
-                </div>
-            </div>
-
-            <div class="glass-box" style="text-align: center; background: rgba(186,12,47,0.15);">
-                <h3 style="font-size: 20px; margin-bottom: 10px; color:#7BFD57;">🎉 결과 확인 완료!</h3>
-                <p style="font-size: 14px; color: #E0E0E0; line-height: 1.5; margin-bottom: 20px;">당신의 게임 성향과 닮은 메뉴를 확인하셨나요?<br>결과 화면을 스태프에게 보여주고 이벤트 참여 또는 경품 응모를 진행해보세요.</p>
-                <button class="btn-cta" style="font-size:16px; padding:14px; max-width: 300px; margin: 0 auto;">이벤트 참여하기</button>
-            </div>
-
-            <div class="glass-box">
-                <div class="stats-title">📊 실시간 참가자 데이터 집계</div>
-                <div id="total-count-ui" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #7BFD57;">⚡ 데이터를 불러오는 중입니다...</div>
-                
-                <div class="stats-grid">
-                    <div>
-                        <div class="stat-row">
-                            <div class="stat-label"><span>👦 남성 비율</span><span id="ratio-m-text">0%</span></div>
-                            <div class="stat-track"><div id="bar-m" class="stat-fill"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <div class="stat-label"><span>👧 여성 비율</span><span id="ratio-f-text">0%</span></div>
-                            <div class="stat-track"><div id="bar-f" class="stat-fill" style="background:#FF69B4;"></div></div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <div class="stat-row">
-                            <div class="stat-label"><span>🍖 직화 삼겹제육덮밥형</span><span id="ratio-j-text">0%</span></div>
-                            <div class="stat-track"><div id="bar-j" class="stat-fill jeiyuk"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <div class="stat-label"><span>🌶️ 로제떡볶이형</span><span id="ratio-r-text">0%</span></div>
-                            <div class="stat-track"><div id="bar-r" class="stat-fill rose"></div></div>
-                        </div>
-                        <div class="stat-row">
-                            <div class="stat-label"><span>🍗 순살치킨형</span><span id="ratio-c-text">0%</span></div>
-                            <div class="stat-track"><div id="bar-c" class="stat-fill chicken"></div></div>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="btn-reset" onclick="resetAll()">다시 테스트하기</button>
-            </div>
-        </div>
-    </div>
-
+    
     <script>
-        // ★ Supabase 초기화 안전망 구축 (실패해도 화면 전환이 차단되지 않도록 방어 설계)
-        let _supabase = null;
-        try {
-            const SUPABASE_URL = "https://rrlpoerphtockgdyncty.supabase.co";
-            const SUPABASE_KEY = "sb_publishable_MdIJ6-Lge-Hn9VsRvfkwog_aHSyDDfZ";
-            if (typeof supabase !== 'undefined') {
-                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        } catch (e) {
-            console.error("Supabase 초기화 실패 (로컬 모드로 수동 작동합니다):", e.message);
-        }
+        // ★ [가장 중요] 브라우저가 에러 로그 없이 모든 함수를 100% 인식하도록 최상단에 안정적으로 선언
+        let userGender = "";
+        let currentIdx = 0;
+        let selections = []; 
 
-        // 테스트 데이터 문항 리스트 정의
         const questions = [
             {
                 q: "새로운 게임을 시작했을 때 당신은?",
@@ -533,7 +71,6 @@
             }
         ];
 
-        // 유형별 텍스트 데이터 맵
         const resultData = {
             "제육": {
                 title: "🍖 직화 삼겹제육덮밥형 플레이어",
@@ -559,30 +96,39 @@
                 imgM: "char-chicken-m.png",
                 imgF: "char-chicken-f.png"
             }
-        ];
+        };
 
-        let userGender = "";
-        let currentIdx = 0;
-        let selections = []; 
+        // Supabase 인스턴스 초기화 안전망 마련
+        let _supabase = null;
+        try {
+            const SUPABASE_URL = "https://rrlpoerphtockgdyncty.supabase.co";
+            const SUPABASE_KEY = "sb_publishable_MdIJ6-Lge-Hn9VsRvfkwog_aHSyDDfZ";
+            if (typeof supabase !== 'undefined') {
+                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) {
+            console.error("수파베이스 초기화 지연/실패:", e.message);
+        }
 
+        // 화면 앵커 이동 함수
         function scrollToPreview() {
             const section = document.getElementById('preview-section');
-            if (section && document.getElementById('home-page').classList.contains('active')) {
+            if (section) {
                 section.scrollIntoView({ behavior: 'smooth' });
             }
         }
 
-        // 전체 화면 숨김/보임 통합 관리 함수
+        // 통합 화면 제어 장치
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            const targetPage = document.getElementById(pageId);
-            if (targetPage) {
-                targetPage.classList.add('active');
+            const target = document.getElementById(pageId);
+            if (target) {
+                target.classList.add('active');
             }
-            window.scrollTo(0,0);
+            window.scrollTo(0, 0);
         }
 
-        // [작동 보장 수동 검증] 테스트 시작하기 트리거 함수
+        // [F12 Error 완전 차단 확인] 테스트 시작 버튼 매핑 함수
         function startTest() {
             showPage('gender-page');
         }
@@ -591,12 +137,12 @@
             userGender = gender;
             document.getElementById('gender-m').classList.remove('selected');
             document.getElementById('gender-f').classList.remove('selected');
-            if(gender === 'male') document.getElementById('gender-m').classList.add('selected');
-            if(gender === 'female') document.getElementById('gender-f').classList.add('selected');
+            if (gender === 'male') document.getElementById('gender-m').classList.add('selected');
+            if (gender === 'female') document.getElementById('gender-f').classList.add('selected');
         }
 
         function goToQuestion() {
-            if(!userGender) {
+            if (!userGender) {
                 alert("성별을 선택해주세요!");
                 return;
             }
@@ -608,24 +154,22 @@
 
         function renderQuestion() {
             const qData = questions[currentIdx];
-            const progressPercent = ((currentIdx) / questions.length) * 100;
+            const progressPercent = (currentIdx / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
-            
-            document.getElementById('question-text').innerText = `Q${currentIdx + 1}. ${qData.q}`;
+            document.getElementById('question-text').innerText = `질문 ${currentIdx + 1}. ${qData.q}`;
             
             let optionsCopy = [...qData.options];
             optionsCopy.sort(() => Math.random() - 0.5);
             
-            const optionsContainer = document.getElementById('options');
-            optionsContainer.innerHTML = "";
+            const container = document.getElementById('options');
+            container.innerHTML = "";
             
             optionsCopy.forEach((opt, idx) => {
                 const btn = document.createElement('button');
-                btn.className = "option-btn";
-                btn.classList.add(`opt-hover-${idx + 1}`);
+                btn.className = `option-btn opt-hover-${idx + 1}`;
                 btn.innerText = opt.text;
                 btn.onclick = () => selectOption(opt.type);
-                optionsContainer.appendChild(btn);
+                container.appendChild(btn);
             });
         }
 
@@ -650,30 +194,24 @@
 
         async function calculateAndUploadResult() {
             const countMap = { "제육": 0, "로제": 0, "치킨": 0 };
-            selections.forEach(type => { if(countMap[type] !== undefined) countMap[type]++; });
+            selections.forEach(type => { if (countMap[type] !== undefined) countMap[type]++; });
             
             let finalType = "제육";
             let maxCount = countMap["제육"];
-            
             if (countMap["로제"] > maxCount) { finalType = "로제"; maxCount = countMap["로제"]; }
             if (countMap["치킨"] > maxCount) { finalType = "치킨"; }
-
-            const korGender = userGender === 'male' ? '남성' : '여성';
-            const korType = resultData[finalType].title;
 
             displayResult(finalType);
             showPage('result-page');
 
-            // DB 전송 오류가 발생하더라도 결과 출력은 방해받지 않도록 안전 분리
             if (_supabase) {
                 try {
-                    const { error } = await _supabase
-                        .from('test_results')
-                        .insert([{ gender: korGender, result_type: korType }]);
-                    if (error) throw error;
+                    const korGender = userGender === 'male' ? '남성' : '여성';
+                    const korType = resultData[finalType].title;
+                    await _supabase.from('test_results').insert([{ gender: korGender, result_type: korType }]);
                     await fetchAndRenderStats();
                 } catch (err) {
-                    console.error("수파베이스 전송 오류:", err.message);
+                    console.error("데이터 저장 실패:", err.message);
                     useDummyStats();
                 }
             } else {
@@ -687,46 +225,35 @@
             document.getElementById('result-headline-text').innerText = data.headline;
             document.getElementById('result-analysis-text').innerText = data.analysis;
             document.getElementById('result-drink-text').innerText = `당신과 닮은 음료: ${data.drink}`;
-            
-            const avatarImg = userGender === 'male' ? data.imgM : data.imgF;
-            document.getElementById('result-avatar').src = avatarImg;
+            document.getElementById('result-avatar').src = userGender === 'male' ? data.imgM : data.imgF;
         }
 
         async function fetchAndRenderStats() {
             if (!_supabase) return;
             try {
-                const { data, error } = await _supabase
-                    .from('test_results')
-                    .select('gender, result_type');
-
+                const { data, error } = await _supabase.from('test_results').select('gender, result_type');
                 if (error) throw error;
-
                 if (data && data.length > 0) {
                     const total = data.length;
                     document.getElementById('total-count-ui').innerText = `🔥 현재 총 참여자 수: ${total}명`;
 
-                    let mCount = 0, fCount = 0;
-                    let jCount = 0, rCount = 0, cCount = 0;
-
+                    let mCount = 0, fCount = 0, jCount = 0, rCount = 0, cCount = 0;
                     data.forEach(row => {
                         if (row.gender === '남성') mCount++;
                         else if (row.gender === '여성') fCount++;
-
                         if (row.result_type && row.result_type.includes('제육')) jCount++;
                         else if (row.result_type && row.result_type.includes('로제')) rCount++;
                         else if (row.result_type && row.result_type.includes('치킨')) cCount++;
                     });
-
                     renderBars(total, mCount, fCount, jCount, rCount, cCount);
                 }
             } catch (err) {
-                console.warn("통계 데이터를 불러올 수 없습니다:", err.message);
                 useDummyStats();
             }
         }
 
         function useDummyStats() {
-            document.getElementById('total-count-ui').innerText = `🔥 현재 총 참여자 수: 1명 (로컬 테스트 모드)`;
+            document.getElementById('total-count-ui').innerText = `🔥 현재 총 참여자 수: 1명 (테스트 모드)`;
             renderBars(1, userGender==='male'?1:0, userGender==='female'?1:0, 1, 0, 0);
         }
 
@@ -754,13 +281,250 @@
             userGender = "";
             currentIdx = 0;
             selections = [];
-            
             document.getElementById('gender-m').classList.remove('selected');
             document.getElementById('gender-f').classList.remove('selected');
             document.getElementById('progress').style.width = '0%';
-            
             showPage('home-page');
         }
     </script>
+
+    <style>
+        /* 글로벌 디자인 및 컴퓨터(PC) 화면 최적화 */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+        body {
+            background: linear-gradient(to top, #BA0C2F 0%, #A00A28 12%, #7A081E 30%, #4D1C24 50%, #333333 65%, #333333 100%);
+            background-attachment: fixed; background-size: 100% 100vh; color: #FFFFFF; min-height: 100vh; display: flex; flex-direction: column; align-items: center; overflow-x: hidden;
+        }
+        .container { width: 100%; max-width: 1024px; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        .page { display: none; width: 100%; flex-direction: column; padding: 40px 24px; }
+        .page.active { display: flex !important; }
+        #home-page { padding: 0; }
+        .glass-box { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 32px; margin: 24px 20px; box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        header { width: 100vw; height: 70px; display: flex; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.55); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); position: sticky; top: 0; z-index: 100; padding: 0 40px; }
+        .header-content { width: 100%; max-width: 1024px; display: flex; justify-content: space-between; align-items: center; }
+        .logo-text { font-weight: 800; font-size: 20px; color: #7BFD57; }
+        .header-menu-right { display: flex; align-items: center; gap: 32px; }
+        .header-link { color: #FFFFFF; text-decoration: none; font-size: 16px; cursor: pointer; transition: color 0.2s; font-weight: bold; }
+        .header-link:hover { color: #7BFD57; }
+        .welcome-section { padding: 80px 40px; text-align: center; background: rgba(0, 0, 0, 0.2); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .main-title { font-size: 42px; font-weight: 900; margin-bottom: 20px; word-break: keep-all; line-height: 1.3; }
+        .sub-copy { font-size: 19px; color: #E0E0E0; margin-bottom: 40px; line-height: 1.6; word-break: keep-all; }
+        .info-badges { display: flex; flex-direction: row; gap: 16px; margin-bottom: 40px; justify-content: center; }
+        .badge { background: rgba(255, 255, 255, 0.12); padding: 10px 24px; border-radius: 30px; font-size: 15px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); }
+        .btn-cta { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #FFFFFF; border: 1px solid rgba(255, 255, 255, 0.4); padding: 22px; font-size: 22px; font-weight: 900; border-radius: 14px; cursor: pointer; max-width: 400px; width: 100%; margin: 0 auto; display: block; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); }
+        .btn-cta:hover { border-color: #BA0C2F; background: rgba(186, 12, 47, 0.15); box-shadow: 0 0 25px rgba(186, 12, 47, 0.6); transform: translateY(-2px); }
+        .scroll-section { padding: 60px 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
+        .section-title { font-size: 28px; font-weight: 800; color: #7BFD57; margin-bottom: 24px; }
+        .section-desc { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; word-break: keep-all; max-width: 800px; margin-left: auto; margin-right: auto; }
+        .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
+        .recommend-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: #444; border: 1px solid rgba(255, 255, 255, 0.15); }
+        .preview-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+        .preview-card { background: rgba(0, 0, 0, 0.3); border-radius: 16px; padding: 24px; border-top: 4px solid #BA0C2F; text-align: left; display: flex; flex-direction: column; justify-content: space-between; }
+        .preview-name { font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+        .preview-sub { font-size: 13px; color: #FFD700; margin-bottom: 12px; font-weight: bold; }
+        .checklist { list-style: none; margin: 16px 0; font-size: 14px; color: #D0D0D0; line-height: 1.6; }
+        .checklist li { margin-bottom: 6px; }
+        .drink-tag { font-size: 14px; font-weight: bold; color: #7BFD57; background: rgba(123, 253, 87, 0.1); padding: 6px 12px; border-radius: 8px; display: inline-block; margin-top: auto; }
+        .gender-title-bold { font-size: 24px; font-weight: 800; margin-bottom: 12px; text-align: center; }
+        .gender-desc-thin { font-size: 15px; color: #CCCCCC; font-weight: 400; margin-bottom: 30px; text-align: center; }
+        .gender-container { display: flex; gap: 24px; margin: 40px 0; justify-content: center; }
+        .gender-option { width: 180px; background: rgba(255, 255, 255, 0.05); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .gender-option img { width: 90px; height: 90px; margin-bottom: 16px; display: block; margin-left: auto; margin-right: auto; }
+        .gender-option.selected { border-color: #7BFD57; background: rgba(123, 253, 87, 0.1); box-shadow: 0 0 20px rgba(123, 253, 87, 0.3); }
+        .btn-next { background: #FFFFFF; color: #333333; font-weight: bold; border: none; padding: 18px; border-radius: 12px; cursor: pointer; max-width: 300px; width: 100%; font-size: 18px; margin: 0 auto; display: block; }
+        .progress-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-bottom: 40px; position: relative; }
+        .progress-bar { height: 100%; width: 0%; background: #BA0C2F; border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px #BA0C2F; }
+        .question-text { font-size: 24px; font-weight: 800; line-height: 1.5; margin-bottom: 32px; word-break: keep-all; text-align: center; }
+        .options-container { display: flex; flex-direction: column; gap: 16px; margin-bottom: 40px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .option-btn { width: 100%; background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 14px; color: #FFFFFF; text-align: left; font-size: 17px; cursor: pointer; transition: all 0.25s ease; line-height: 1.5; }
+        .option-btn.opt-hover-1:hover { border-color: #7BFD57 !important; background: rgba(123, 253, 87, 0.12) !important; box-shadow: 0 0 20px rgba(123, 253, 87, 0.45) !important; }
+        .option-btn.opt-hover-2:hover { border-color: #1C03E1 !important; background: rgba(28, 3, 225, 0.12) !important; box-shadow: 0 0 20px rgba(28, 3, 225, 0.45) !important; }
+        .option-btn.opt-hover-3:hover { border-color: #02076D !important; background: rgba(2, 7, 109, 0.15) !important; box-shadow: 0 0 20px rgba(2, 7, 109, 0.45) !important; }
+        .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 0 auto; }
+        .result-title { font-size: 16px; color: #FFD700; font-weight: bold; text-align: center; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .result-type { font-size: 32px; font-weight: 900; text-align: center; margin-bottom: 24px; color: #7BFD57; }
+        .result-char { width: 220px; height: 220px; margin: 0 auto 24px auto; display: block; object-fit: contain; }
+        .result-headline { font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 24px; color: #FFD700; }
+        .result-analysis { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; text-align: center; word-break: keep-all; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .stats-title { font-size: 16px; font-weight: bold; margin-bottom: 16px; color: #7BFD57; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 8px; text-align: left; }
+        .stat-row { margin-bottom: 14px; font-size: 14px; text-align: left; }
+        .stat-label { display: flex; justify-content: space-between; margin-bottom: 6px; font-weight: bold; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+        @media (max-width: 768px) { .stats-grid { grid-template-columns: 1fr; } }
+        .stat-track { width: 100%; height: 12px; background: rgba(255, 255, 255, 0.1); border-radius: 6px; overflow: hidden; }
+        .stat-fill { height: 100%; width: 0%; background: #1C03E1; border-radius: 6px; transition: width 1s cubic-bezier(0.1, 0.8, 0.2, 1); }
+        .stat-fill.jeiyuk { background: #BA0C2F; }
+        .stat-fill.rose { background: #FF69B4; }
+        .stat-fill.chicken { background: #FFD700; }
+        .btn-reset { background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 18px; border-radius: 12px; cursor: pointer; width: 100%; font-size: 17px; font-weight: bold; margin-top: 24px; transition: background 0.2s; }
+        footer { margin-top: auto; width: 100%; background: #000000; padding: 32px 40px; display: flex; justify-content: center; align-items: center; gap: 48px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
+        footer img { height: 40px; max-width: 140px; object-fit: contain; opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-content">
+            <div class="logo-text">🍱 오늘의 메뉴</div>
+            <div class="header-menu-right">
+                <a class="header-link" href="https://esportscube.creatorlink.net/" target="_blank">큐브</a>
+                <div class="header-link" onclick="scrollToPreview()">메뉴 유형</div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div id="home-page" class="page active">
+            <div class="welcome-section">
+                <h1 class="main-title">🎮 게임 성향으로 알아보는 나만의 메뉴</h1>
+                <p class="sub-copy">당신은 게임을 어떻게 즐기나요?<br>게임 속 선택을 통해 당신과 가장 닮은 메뉴를 찾아보세요!</p>
+                <div class="info-badges">
+                    <div class="badge">✔ 총 7문항</div>
+                    <div class="badge">✔ 약 1분 소요</div>
+                    <div class="badge">✔ 나와 닮은 메뉴 추천</div>
+                </div>
+                <button id="start-btn" class="btn-cta" onclick="startTest()">테스트 시작하기</button>
+            </div>
+
+            <div class="scroll-section">
+                <h2 class="section-title">당신의 플레이 스타일은?</h2>
+                <p class="section-desc">게임을 즐기는 방식은 사람마다 다릅니다. 누군가는 목표를 세고 효율적으로 성장하는 것을 좋아하고, 누군가는 새로운 콘텐츠를 탐험하며 예상치 못한 재미를 찾습니다. 또 누군가는 친구들과 함께하는 순간에서 가장 큰 즐거움을 느끼기도 합니다. 간단한 7개의 질문을 통해 당신의 게임 성향과 가장 닮은 메뉴를 찾아보세요!</p>
+                <div class="image-grid">
+                    <img src="recommend-1.png" alt="추천1" class="recommend-img">
+                    <img src="recommend-2.png" alt="추천2" class="recommend-img">
+                    <img src="recommend-3.png" alt="추천3" class="recommend-img">
+                    <img src="recommend-4.png" alt="추천4" class="recommend-img">
+                </div>
+            </div>
+
+            <div id="preview-section" class="scroll-section">
+                <h2 class="section-title">메뉴 유형 미리보기</h2>
+                <div class="preview-container">
+                    <div class="preview-card">
+                        <div>
+                            <div class="preview-name">🍖 직화 삼겹제육덮밥형</div>
+                            <div class="preview-sub">목표를 향해 나아가는 전략가</div>
+                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">성장과 성취를 중요하게 생각하는 타입입니다.</p>
+                            <ul class="checklist">
+                                <li>✔ 목표를 세우고 플레이한다</li>
+                                <li>✔ 공략을 자주 찾아본다</li>
+                            </ul>
+                        </div>
+                        <div class="drink-tag">☕ 아메리카노</div>
+                    </div>
+
+                    <div class="preview-card">
+                        <div>
+                            <div class="preview-name">🌶️ 로제떡볶이형</div>
+                            <div class="preview-sub">재미를 찾아다니는 탐험가</div>
+                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">정답보다 경험을 중요하게 생각합니다.</p>
+                            <ul class="checklist">
+                                <li>✔ 새로운 콘텐츠를 좋아한다</li>
+                                <li>✔ 호기심이 많다</li>
+                            </ul>
+                        </div>
+                        <div class="drink-tag">🫐 블루레몬 에이드</div>
+                    </div>
+
+                    <div class="preview-card">
+                        <div>
+                            <div class="preview-name">🍗 순살치킨형</div>
+                            <div class="preview-sub">함께일 때 즐거운 분위기 메이커</div>
+                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">게임은 소통과 연대의 경험입니다.</p>
+                            <ul class="checklist">
+                                <li>✔ 함께하는 게임을 좋아한다</li>
+                                <li>✔ 협동 플레이를 즐긴다</li>
+                            </ul>
+                        </div>
+                        <div class="drink-tag">🍓 딸기 스무디</div>
+                    </div>
+                </div>
+            </div>
+
+            <footer>
+                <img src="logo-cube.png" alt="CUBE">
+                <img src="logo-qchamps.png" alt="Q-CHAMPS">
+                <img src="logo-zowie.png" alt="ZOWIE">
+            </footer>
+        </div>
+
+        <div id="gender-page" class="page">
+            <div class="glass-box" style="margin-top: 40px;">
+                <h2 class="gender-title-bold">성별을 선택해주세요.</h2>
+                <p class="gender-desc-thin">결과 통계 및 성비 데이터 도출을 위해 기록됩니다.</p>
+                <div class="gender-container">
+                    <div class="gender-option" id="gender-m" onclick="selectGender('male')">
+                        <img src="char-male.png" alt="남자">
+                        <span style="font-size: 16px; font-weight: bold;">👦 남성</span>
+                    </div>
+                    <div class="gender-option" id="gender-f" onclick="selectGender('female')">
+                        <img src="char-female.png" alt="여자">
+                        <span style="font-size: 16px; font-weight: bold;">👧 여성</span>
+                    </div>
+                </div>
+                <button class="btn-next" onclick="goToQuestion()">다음 단계로 이동</button>
+            </div>
+        </div>
+
+        <div id="question-page" class="page">
+            <div class="progress-container"><div id="progress" class="progress-bar"></div></div>
+            <div class="glass-box">
+                <div id="question-text" class="question-text">질문 불러오는 중...</div>
+                <div id="options" class="options-container"></div>
+                <button class="btn-prev" onclick="prevQuestion()">[ 이전 문항으로 ]</button>
+            </div>
+        </div>
+
+        <div id="result-page" class="page">
+            <div class="glass-box">
+                <div class="result-title">당신의 게임 성향 매칭 결과</div>
+                <div id="result-type-text" class="result-type">결과 도출 중...</div>
+                <img id="result-avatar" src="" alt="캐릭터" class="result-char">
+                <div id="result-headline-text" class="result-headline"></div>
+                <p id="result-analysis-text" class="result-analysis"></p>
+                <div style="margin-top: 20px; text-align: center;">
+                    <span id="result-drink-text" class="drink-tag" style="font-size: 15px; padding: 8px 16px;"></span>
+                </div>
+            </div>
+
+            <div class="glass-box" style="text-align: center; background: rgba(186,12,47,0.15);">
+                <h3 style="font-size: 20px; margin-bottom: 10px; color:#7BFD57;">🎉 결과 확인 완료!</h3>
+                <p style="font-size: 14px; color: #E0E0E0; line-height: 1.5; margin-bottom: 20px;">결과 화면을 스태프에게 보여주고 이벤트 참여를 진행해보세요.</p>
+                <button class="btn-cta" style="font-size:16px; padding:14px; max-width: 300px; margin: 0 auto;">이벤트 참여하기</button>
+            </div>
+
+            <div class="glass-box">
+                <div class="stats-title">📊 실시간 참가자 데이터 집계</div>
+                <div id="total-count-ui" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #7BFD57;">데이터 로딩 중...</div>
+                <div class="stats-grid">
+                    <div>
+                        <div class="stat-row">
+                            <div class="stat-label"><span>👦 남성 비율</span><span id="ratio-m-text">0%</span></div>
+                            <div class="stat-track"><div id="bar-m" class="stat-fill"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label"><span>👧 여성 비율</span><span id="ratio-f-text">0%</span></div>
+                            <div class="stat-track"><div id="bar-f" class="stat-fill" style="background:#FF69B4;"></div></div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-row">
+                            <div class="stat-label"><span>🍖 직화 삼겹제육덮밥형</span><span id="ratio-j-text">0%</span></div>
+                            <div class="stat-track"><div id="bar-j" class="stat-fill jeiyuk"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label"><span>🌶️ 로제떡볶이형</span><span id="ratio-r-text">0%</span></div>
+                            <div class="stat-track"><div id="bar-r" class="stat-fill rose"></div></div>
+                        </div>
+                        <div class="stat-row">
+                            <div class="stat-label"><span>🍗 순살치킨형</span><span id="ratio-c-text">0%</span></div>
+                            <div class="stat-track"><div id="bar-c" class="stat-fill chicken"></div></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-reset" onclick="resetAll()">다시 테스트하기</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
