@@ -167,45 +167,53 @@
             renderQuestion();
         }
 
-        // ★ [디자인 가이드라인 정밀 반영] 예시와 유저 질문을 동일하게 작은 크기 + 얇은 폰트 + 흰색 불투명도 85% 세트로 일원화했습니다.
+        // ★ [디자인 가이드라인 정밀 반영 수정 구역]
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
             
             const qTextContainer = document.getElementById('question-text');
-            qTextContainer.innerHTML = ""; // 기존 노출 텍스트 지우기
+            qTextContainer.innerHTML = ""; // 기존 노출 텍스트 초기화
 
-            // 1층 & 2층: 질문 번호 및 상황 질문 (24px 메인 크기, 굵은 폰트)
-            const mainTitle = document.createElement('div');
-            mainTitle.style.fontSize = "24px";
-            mainTitle.style.fontWeight = "800";
-            mainTitle.style.marginBottom = "14px";
-            mainTitle.style.color = "#FFFFFF";
-            mainTitle.innerText = `질문 ${currentIdx + 1}.\n${qData.q}`;
-            qTextContainer.appendChild(mainTitle);
+            // 1층: 질문 번호 구역 (큰 24px 크기, 굵은 폰트, 라임 색상 지정 완료)
+            const qNumberSpan = document.createElement('span');
+            qNumberSpan.style.color = "#7BFD57";
+            qNumberSpan.style.fontSize = "24px";
+            qNumberSpan.style.fontWeight = "800";
+            qNumberSpan.innerText = `질문 ${currentIdx + 1}. `;
+            qTextContainer.appendChild(qNumberSpan);
 
-            // 3층: 예시 구역 (작은 15px 크기, 얇은 Regular/Light 굵기, 불투명도 85% 흰색 매칭)
+            // 2층: 상황 질문 구역 (큰 24px 크기, 굵은 폰트, 선명한 흰색 지정 완료)
+            const qTitleSpan = document.createElement('span');
+            qTitleSpan.style.color = "#FFFFFF";
+            qTitleSpan.style.fontSize = "24px";
+            qTitleSpan.style.fontWeight = "800";
+            qTitleSpan.innerText = qData.q;
+            qTextContainer.appendChild(qTitleSpan);
+
+            // 3층: 예시 구역 (작은 15px 크기, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
             if(qData.example && qData.example.trim() !== "") {
-                const exampleSub = document.createElement('div');
-                exampleSub.style.fontSize = "15px";
-                exampleSub.style.fontWeight = "400";
-                exampleSub.style.color = "rgba(255, 255, 255, 0.85)";
-                exampleSub.style.marginBottom = "14px";
-                exampleSub.style.lineHeight = "1.6";
-                exampleSub.style.whiteSpace = "pre-line"; // 엔터키 반영 구조 보장
-                exampleSub.innerText = qData.example;
-                qTextContainer.appendChild(exampleSub);
+                const exampleBlock = document.createElement('div');
+                exampleBlock.style.fontSize = "15px";
+                exampleBlock.style.fontWeight = "400";
+                exampleBlock.style.color = "rgba(255, 255, 255, 0.85)";
+                exampleBlock.style.marginTop = "14px";
+                exampleBlock.style.lineHeight = "1.6";
+                exampleBlock.style.whiteSpace = "pre-line"; // 엔터키(\n) 줄바꿈 완벽 연출 보장
+                exampleBlock.innerText = qData.example;
+                qTextContainer.appendChild(exampleBlock);
             }
 
-            // 4층: 유저 행동유도 질문 구역 (★ 예시와 완전히 동일하게 작은 15px, 얇은 굵기, 불투명도 85% 흰색 통일 적용)
+            // 4층: 유저 행동유도 질문 구역 (★ 3층 예시 구역과 완벽히 동일하게 15px, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
             if(qData.action && qData.action.trim() !== "") {
-                const actionTitle = document.createElement('div');
-                actionTitle.style.fontSize = "15px";
-                actionTitle.style.fontWeight = "400";
-                actionTitle.style.color = "rgba(255, 255, 255, 0.85)";
-                actionTitle.innerText = qData.action;
-                qTextContainer.appendChild(actionTitle);
+                const actionBlock = document.createElement('div');
+                actionBlock.style.fontSize = "15px";
+                actionBlock.style.fontWeight = "400";
+                actionBlock.style.color = "rgba(255, 255, 255, 0.85)";
+                actionBlock.style.marginTop = "14px";
+                actionBlock.innerText = qData.action;
+                qTextContainer.appendChild(actionBlock);
             }
             
             let optionsCopy = [...qData.options];
