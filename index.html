@@ -52,7 +52,7 @@
             padding: 40px 24px; 
         }
         
-        /* ★ 화면 전환 오류 완전 해결: 자바스크립트 연동 노출 명령어 최우선순위 강제 부여 */
+        /* ★ 화면 전환 노출 명령어 최우선순위 강제 부여 */
         .page.active { 
             display: flex !important; 
         }
@@ -197,6 +197,8 @@
             box-shadow: 0 0 20px rgba(123, 253, 87, 0.3);
         }
 
+        .btn-next { background: #FFFFFF; color: #333333; font-weight: bold; border: none; padding: 18px; border-radius: 12px; cursor: pointer; max-width: 300px; width: 100%; font-size: 18px; margin: 0 auto; display: block; }
+
         /* STEP 03. 테스트 문항 및 답변 선택지 개별 호버 효과 스타일 */
         .progress-container { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.1); border-radius: 4px; margin-bottom: 40px; position: relative; }
         .progress-bar { height: 100%; width: 0%; background: #BA0C2F; border-radius: 4px; transition: width 0.3s ease; box-shadow: 0 0 10px #BA0C2F; }
@@ -205,6 +207,7 @@
         
         /* 기본 선택지 박스 틀 (글래스모피즘 유지) */
         .option-btn {
+            width: 100%;
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -422,7 +425,7 @@
 
             <div class="glass-box">
                 <div class="stats-title">📊 실시간 참가자 데이터 집계</div>
-                <div id="total-count-ui" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #7BFD57;"></div>
+                <div id="total-count-ui" style="font-size: 16px; font-weight: bold; margin-bottom: 20px; text-align: center; color: #7BFD57;">⚡ 데이터를 불러오는 중입니다...</div>
                 
                 <div class="stats-grid">
                     <div>
@@ -458,10 +461,17 @@
     </div>
 
     <script>
-        // 수파베이스 자격 증명 연동
-        const SUPABASE_URL = "https://rrlpoerphtockgdyncty.supabase.co";
-        const SUPABASE_KEY = "sb_publishable_MdIJ6-Lge-Hn9VsRvfkwog_aHSyDDfZ";
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ★ Supabase 초기화 안전망 구축 (실패해도 화면 전환이 차단되지 않도록 방어 설계)
+        let _supabase = null;
+        try {
+            const SUPABASE_URL = "https://rrlpoerphtockgdyncty.supabase.co";
+            const SUPABASE_KEY = "sb_publishable_MdIJ6-Lge-Hn9VsRvfkwog_aHSyDDfZ";
+            if (typeof supabase !== 'undefined') {
+                _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            }
+        } catch (e) {
+            console.error("Supabase 초기화 실패 (로컬 모드로 수동 작동합니다):", e.message);
+        }
 
         // 테스트 데이터 문항 리스트 정의
         const questions = [
@@ -562,12 +572,17 @@
             }
         }
 
+        // 전체 화면 숨김/보임 통합 관리 함수
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
+            const targetPage = document.getElementById(pageId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
             window.scrollTo(0,0);
         }
 
+        // [작동 보장 수동 검증] 테스트 시작하기 트리거 함수
         function startTest() {
             showPage('gender-page');
         }
@@ -607,10 +622,7 @@
             optionsCopy.forEach((opt, idx) => {
                 const btn = document.createElement('button');
                 btn.className = "option-btn";
-                
-                // 셔플된 배치 이후 화면 노출 순서(위에서부터 1, 2, 3번째 줄) 기준 개별 클래스 부여
                 btn.classList.add(`opt-hover-${idx + 1}`);
-                
                 btn.innerText = opt.text;
                 btn.onclick = () => selectOption(opt.type);
                 optionsContainer.appendChild(btn);
@@ -637,8 +649,6 @@
         }
 
         async function calculateAndUploadResult() {
-            showPage('question-page'); 
-            
             const countMap = { "제육": 0, "로제": 0, "치킨": 0 };
             selections.forEach(type => { if(countMap[type] !== undefined) countMap[type]++; });
             
@@ -651,20 +661,23 @@
             const korGender = userGender === 'male' ? '남성' : '여성';
             const korType = resultData[finalType].title;
 
-            try {
-                const { error } = await _supabase
-                    .from('test_results')
-                    .insert([{ gender: korGender, result_type: korType }]);
+            displayResult(finalType);
+            showPage('result-page');
 
-                if (error) throw error;
-                
-                displayResult(finalType);
-                await fetchAndRenderStats();
-                showPage('result-page');
-            } catch (err) {
-                console.error("수파베이스 전송 오류:", err.message);
-                displayResult(finalType);
-                showPage('result-page');
+            // DB 전송 오류가 발생하더라도 결과 출력은 방해받지 않도록 안전 분리
+            if (_supabase) {
+                try {
+                    const { error } = await _supabase
+                        .from('test_results')
+                        .insert([{ gender: korGender, result_type: korType }]);
+                    if (error) throw error;
+                    await fetchAndRenderStats();
+                } catch (err) {
+                    console.error("수파베이스 전송 오류:", err.message);
+                    useDummyStats();
+                }
+            } else {
+                useDummyStats();
             }
         }
 
@@ -680,6 +693,7 @@
         }
 
         async function fetchAndRenderStats() {
+            if (!_supabase) return;
             try {
                 const { data, error } = await _supabase
                     .from('test_results')
@@ -698,32 +712,42 @@
                         if (row.gender === '남성') mCount++;
                         else if (row.gender === '여성') fCount++;
 
-                        if (row.result_type.includes('제육')) jCount++;
-                        else if (row.result_type.includes('로제')) rCount++;
-                        else if (row.result_type.includes('치킨')) cCount++;
+                        if (row.result_type && row.result_type.includes('제육')) jCount++;
+                        else if (row.result_type && row.result_type.includes('로제')) rCount++;
+                        else if (row.result_type && row.result_type.includes('치킨')) cCount++;
                     });
 
-                    const mRatio = Math.round((mCount / total) * 100);
-                    const fRatio = Math.round((fCount / total) * 100);
-                    const jRatio = Math.round((jCount / total) * 100);
-                    const rRatio = Math.round((rCount / total) * 100);
-                    const cRatio = Math.round((cCount / total) * 100);
-
-                    document.getElementById('ratio-m-text').innerText = `${mRatio}%`;
-                    document.getElementById('ratio-f-text').innerText = `${fRatio}%`;
-                    document.getElementById('ratio-j-text').innerText = `${jRatio}%`;
-                    document.getElementById('ratio-r-text').innerText = `${rRatio}%`;
-                    document.getElementById('ratio-c-text').innerText = `${cRatio}%`;
-
-                    document.getElementById('bar-m').style.width = `${mRatio}%`;
-                    document.getElementById('bar-f').style.width = `${fRatio}%`;
-                    document.getElementById('bar-j').style.width = `${jRatio}%`;
-                    document.getElementById('bar-r').style.width = `${rRatio}%`;
-                    document.getElementById('bar-c').style.width = `${cRatio}%`;
+                    renderBars(total, mCount, fCount, jCount, rCount, cCount);
                 }
             } catch (err) {
                 console.warn("통계 데이터를 불러올 수 없습니다:", err.message);
+                useDummyStats();
             }
+        }
+
+        function useDummyStats() {
+            document.getElementById('total-count-ui').innerText = `🔥 현재 총 참여자 수: 1명 (로컬 테스트 모드)`;
+            renderBars(1, userGender==='male'?1:0, userGender==='female'?1:0, 1, 0, 0);
+        }
+
+        function renderBars(total, mCount, fCount, jCount, rCount, cCount) {
+            const mRatio = Math.round((mCount / total) * 100) || 0;
+            const fRatio = Math.round((fCount / total) * 100) || 0;
+            const jRatio = Math.round((jCount / total) * 100) || 0;
+            const rRatio = Math.round((rCount / total) * 100) || 0;
+            const cRatio = Math.round((cCount / total) * 100) || 0;
+
+            document.getElementById('ratio-m-text').innerText = `${mRatio}%`;
+            document.getElementById('ratio-f-text').innerText = `${fRatio}%`;
+            document.getElementById('ratio-j-text').innerText = `${jRatio}%`;
+            document.getElementById('ratio-r-text').innerText = `${rRatio}%`;
+            document.getElementById('ratio-c-text').innerText = `${cRatio}%`;
+
+            document.getElementById('bar-m').style.width = `${mRatio}%`;
+            document.getElementById('bar-f').style.width = `${fRatio}%`;
+            document.getElementById('bar-j').style.width = `${jRatio}%`;
+            document.getElementById('bar-r').style.width = `${rRatio}%`;
+            document.getElementById('bar-c').style.width = `${cRatio}%`;
         }
 
         function resetAll() {
