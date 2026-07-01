@@ -15,17 +15,17 @@
             -webkit-tap-highlight-color: transparent;
         }
         body {
-            /* ★ [의도 완벽 반영] 창을 스크롤해도 아래 그라데이션 배경은 모니터 화면에 고정, 층 없이 은은한 톤 */
+            /* 층 없이 은은한 톤다운 그라데이션 배경창 고정 구조 유지 */
             background: linear-gradient(to top, 
-                #BA0C2F 0%,     /* 최하단 고유의 PANTONE 200C 상징색 유지 */
-                #A00A28 12%,    /* 경계 층이 생기지 않도록 중간 완충 색상 촘촘히 배치 */
-                #7A081E 30%,    /* 눈이 덜 아프도록 부드럽게 톤 다운된 딥 버건디 레드로 전이 */
+                #BA0C2F 0%,     
+                #A00A28 12%,    
+                #7A081E 30%,    
                 #4D1C24 50%,    
-                #333333 65%,    /* 자연스럽게 차콜 상단 영역과 연결 */
+                #333333 65%,    
                 #333333 100%
             );
-            background-attachment: fixed; /* 배경 화면창 완벽 고정 */
-            background-size: 100% 100vh;  /* 모니터 세로 높이에 상시 맞춤 */
+            background-attachment: fixed; 
+            background-size: 100% 100vh;  
             color: #FFFFFF;
             min-height: 100vh;
             display: flex;
@@ -34,7 +34,7 @@
             overflow-x: hidden;
         }
         
-        /* ★ [PC 원복] 다시 컴퓨터 브라우저를 메인 타깃으로 최대 가로폭 1024px 확장 */
+        /* 컴퓨터 브라우저 메인 가로폭 1024px */
         .container {
             width: 100%;
             max-width: 1024px;
@@ -49,15 +49,13 @@
             display: none; 
             width: 100%; 
             flex-direction: column; 
-            padding: 40px 24px; /* 여백을 큼직큼직하게 조정 */
+            padding: 40px 24px; 
         }
         
-        /* active 클래스가 붙은 단 하나의 페이지만 화면에 노출 */
         .page.active { 
             display: flex !important; 
         }
 
-        /* 메인 홈 레이아웃 패딩 초기화 */
         #home-page { 
             padding: 0; 
         }
@@ -69,32 +67,44 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 20px;
-            padding: 32px; /* 내부 요소도 크게 배치하기 위해 내부 여백 확대 */
+            padding: 32px; 
             margin: 24px 20px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
-        /* 상단 헤더: 글래스모피즘 효과 적용 */
+        /* ★ [요청사항 1&2 반영] 상단 헤더 PC 좌우 여백 없앰 + 반투명 글래스 효과 + 좌측/우측 배치 고정 */
         header {
-            width: 100%;
+            width: 100vw; /* 화면 좌우 끝까지 100% 채움 */
+            position: left;
+            left: 0;
             height: 70px;
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
-            padding: 0 40px;
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.55); /* 반투명 배경 */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
+            padding: 0 40px;
+        }
+        
+        /* 헤더 내부 콘텐츠 정렬 컨테이너 */
+        .header-content {
+            width: 100%;
+            max-width: 1024px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .logo-text { font-weight: 800; font-size: 20px; color: #7BFD57; }
+        .header-menu-right { display: flex; align-items: center; gap: 32px; }
         .header-link { color: #FFFFFF; text-decoration: none; font-size: 16px; cursor: pointer; transition: color 0.2s; font-weight: bold; }
         .header-link:hover { color: #7BFD57; }
 
-        /* STEP 01. 랜딩 메인 홈 상단 인트로 - PC에서 시원하게 꽉 차도록 세팅 */
+        /* STEP 01. 랜딩 메인 홈 상단 인트로 */
         .welcome-section { 
             padding: 80px 40px; 
             text-align: center;
@@ -106,43 +116,52 @@
         
         .info-badges { 
             display: flex; 
-            flex-direction: row; /* 가로 배열로 큼직하게 나열 */
+            flex-direction: row; 
             gap: 16px; 
             margin-bottom: 40px; 
             justify-content: center; 
         }
         .badge { background: rgba(255, 255, 255, 0.12); padding: 10px 24px; border-radius: 30px; font-size: 15px; font-weight: bold; border: 1px solid rgba(255, 255, 255, 0.2); }
         
-        /* 대형 CTA 버튼 */
+        /* ★ [요청사항 3 반영] 평상시 글래스 효과만 가진 버튼 (테두리 흰색) */
         .btn-cta {
-            background: #BA0C2F; 
+            background: rgba(255, 255, 255, 0.08); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             color: #FFFFFF;
-            border: none;
+            border: 1px solid rgba(255, 255, 255, 0.4); /* 흰색 계열 테두리 */
             padding: 22px;
             font-size: 22px;
             font-weight: 900;
             border-radius: 14px;
             cursor: pointer;
-            max-width: 400px; /* 너무 가로로 찢어지지 않게 최대 크기 지정 */
+            max-width: 400px; 
             width: 100%;
             margin: 0 auto;
             display: block;
-            transition: transform 0.2s, background 0.2s;
-            box-shadow: 0 6px 20px rgba(186, 12, 47, 0.5);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
-        .btn-cta:active { transform: scale(0.97); background: #990A26; }
+        /* ★ 호버 시에만 pantone 200c 테두리의 글래스 효과 박스로 변형 */
+        .btn-cta:hover {
+            border-color: #BA0C2F; /* Pantone 200c 테두리 */
+            background: rgba(186, 12, 47, 0.15); 
+            box-shadow: 0 0 25px rgba(186, 12, 47, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn-cta:active { transform: scale(0.98); }
 
         /* 섹션 소개란 */
         .scroll-section { padding: 60px 40px; border-top: 1px solid rgba(255, 255, 255, 0.1); text-align: center; }
         .section-title { font-size: 28px; font-weight: 800; color: #7BFD57; margin-bottom: 24px; }
         .section-desc { font-size: 16px; line-height: 1.8; color: #E0E0E0; margin-bottom: 30px; word-break: keep-all; max-width: 800px; margin-left: auto; margin-right: auto; }
         
-        /* 썸네일 이미지 그리드: PC화면에서 4열 배치로 구성 */
+        /* 썸네일 이미지 그리드 */
         .image-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-top: 24px; }
-        @media (max-width: 768px) { .image-grid { grid-template-columns: 1fr 1fr; } } /* 모바일 세로 대응 */
+        @media (max-width: 768px) { .image-grid { grid-template-columns: 1fr 1fr; } } 
         .recommend-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 16px; background: #444; border: 1px solid rgba(255, 255, 255, 0.15); }
 
-        /* 메뉴 유형 미리보기: PC 대화면에서 가로 3열로 나란히 배치 */
+        /* 메뉴 유형 미리보기 */
         .preview-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -245,12 +264,17 @@
 </head>
 <body>
 
-    <div class="container">
-        <header>
+    <header>
+        <div class="header-content">
             <div class="logo-text">🍱 오늘의 메뉴</div>
-            <div class="header-link" onclick="scrollToPreview()">메뉴 유형</div>
-        </header>
+            <div class="header-menu-right">
+                <a class="header-link" href="https://esportscube.creatorlink.net/" target="_blank">큐브</a>
+                <div class="header-link" onclick="scrollToPreview()">메뉴 유형</div>
+            </div>
+        </div>
+    </header>
 
+    <div class="container">
         <div id="home-page" class="page active">
             <div class="welcome-section">
                 <h1 class="main-title">🎮 게임 성향으로 알아보는 나만의 메뉴</h1>
@@ -378,7 +402,7 @@
             <div class="glass-box" style="text-align: center; background: rgba(186,12,47,0.15);">
                 <h3 style="font-size: 20px; margin-bottom: 10px; color:#7BFD57;">🎉 결과 확인 완료!</h3>
                 <p style="font-size: 14px; color: #E0E0E0; line-height: 1.5; margin-bottom: 20px;">당신의 게임 성향과 닮은 메뉴를 확인하셨나요?<br>결과 화면을 스태프에게 보여주고 이벤트 참여 또는 경품 응모를 진행해보세요.</p>
-                <button class="btn-cta" style="font-size:16px; padding:14px; max-width: 300px; margin: 0 auto;" onclick="alert('이벤트 참여 코드가 인증되었습니다.')">이벤트 참여하기</button>
+                <button class="btn-cta" style="font-size:16px; padding:14px; max-width: 300px; margin: 0 auto;">이벤트 참여하기</button>
             </div>
 
             <div class="glass-box">
@@ -512,12 +536,10 @@
             }
         ];
 
-        // 상태 관리 변수들
         let userGender = "";
         let currentIdx = 0;
         let selections = []; 
 
-        // 네비게이션용 스크롤 스크립트
         function scrollToPreview() {
             const section = document.getElementById('preview-section');
             if (section && document.getElementById('home-page').classList.contains('active')) {
@@ -525,14 +547,12 @@
             }
         }
 
-        // 화면 제어 헬퍼
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
             window.scrollTo(0,0);
         }
 
-        // 테스트 시작 흐름 제어
         function startTest() {
             showPage('gender-page');
         }
@@ -556,11 +576,8 @@
             renderQuestion();
         }
 
-        // 문항 랜더링 및 무작위 선택지 셔플 알고리즘 구현
         function renderQuestion() {
             const qData = questions[currentIdx];
-            
-            // 진행도 게이지바 계산
             const progressPercent = ((currentIdx) / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
             
@@ -600,7 +617,6 @@
             }
         }
 
-        // 다수결 계산 처리 및 수파베이스 연동 데이터 처리
         async function calculateAndUploadResult() {
             showPage('question-page'); 
             
@@ -633,7 +649,6 @@
             }
         }
 
-        // 결과창 콘텐츠 할당
         function displayResult(type) {
             const data = resultData[type];
             document.getElementById('result-type-text').innerText = data.title;
@@ -645,7 +660,6 @@
             document.getElementById('result-avatar').src = avatarImg;
         }
 
-        // 수파베이스 DB 실시간 통계 산출 로직
         async function fetchAndRenderStats() {
             try {
                 const { data, error } = await _supabase
@@ -667,7 +681,7 @@
 
                         if (row.result_type.includes('제육')) jCount++;
                         else if (row.result_type.includes('로제')) rCount++;
-                        else if (row.result_type.includes.includes('치킨')) cCount++;
+                        else if (row.result_type.includes('치킨')) cCount++;
                     });
 
                     const mRatio = Math.round((mCount / total) * 100);
@@ -693,7 +707,6 @@
             }
         }
 
-        // 상태 완벽 초기화 리셋 제어 로직
         function resetAll() {
             userGender = "";
             currentIdx = 0;
