@@ -7,15 +7,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <script>
-        // ★ 브라우저가 에러 로그 없이 모든 함수를 100% 인식하도록 최상단에 안정적으로 선언
         // 변수 최상단 안전 선언
         let userGender = "";
         let currentIdx = 0;
         let selections = []; 
         let _supabase = null;
 
-        // ★ 요청하신 7가지 문항 리스트 전면 교체 및 Q3, Q5 전용 레이아웃 매칭 데이터 구조
-        // 7가지 문항 리스트 및 Q3, Q5 매칭 데이터 구조 보존
+        // 7가지 문항 리스트 데이터 구조 보존
         const questions = [
             {
                 q: "새로운 게임을 시작했을 때, 당신은?",
@@ -116,7 +114,7 @@
             }
         };
 
-        // ★ 401 에러 및 중복 오류 해결을 위해 브라우저가 완전히 스크립트를 로드한 직후 안전하게 초기화 실행되도록 정밀 수정
+        // 수파베이스 안전 초기화 실행
         window.addEventListener('DOMContentLoaded', () => {
             try {
                 const SUPABASE_URL = "https://rrlpoerphtockgdyncty.supabase.co";
@@ -129,7 +127,6 @@
             }
         });
 
-        // 화면 앵커 이동 함수
         function scrollToPreview() {
             const section = document.getElementById('preview-section');
             if (section) {
@@ -137,7 +134,6 @@
             }
         }
 
-        // 통합 화면 제어 장치
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             const target = document.getElementById(pageId);
@@ -147,7 +143,6 @@
             window.scrollTo(0, 0);
         }
 
-        // 테스트 시작 버튼 매핑 함수
         function startTest() { 
             showPage('gender-page'); 
         }
@@ -171,17 +166,15 @@
             renderQuestion();
         }
 
-        // ★ [디자인 가이드라인 및 줄바꿈 구조 완벽 유지 반영 구역]
-        // 디자인 정밀 규칙 매칭 영역 보존
         function renderQuestion() {
             const qData = questions[currentIdx];
             const progressPercent = (currentIdx / questions.length) * 100;
             document.getElementById('progress').style.width = `${progressPercent}%`;
 
             const qTextContainer = document.getElementById('question-text');
-            qTextContainer.innerHTML = ""; // 기존 노출 텍스트 초기화
+            qTextContainer.innerHTML = "";
 
-            // 1층: 질문 번호 구역 (라임색, 굵게, display: block으로 완벽하게 엔터 효과 부여)
+            // 1층: 질문 번호 구역 (라임색)
             const qNumberBlock = document.createElement('div');
             qNumberBlock.style.color = "#7BFD57";
             qNumberBlock.style.fontSize = "24px";
@@ -190,7 +183,7 @@
             qNumberBlock.innerText = `질문 ${currentIdx + 1}.`;
             qTextContainer.appendChild(qNumberBlock);
 
-            // 2층: 상황 설명/질문 구역 (선명한 흰색, 굵게, 엔터 자동 적용)
+            // 2층: 상황 질문 구역 (흰색)
             const qTitleBlock = document.createElement('div');
             qTitleBlock.style.color = "#FFFFFF";
             qTitleBlock.style.fontSize = "24px";
@@ -198,7 +191,7 @@
             qTitleBlock.innerText = qData.q;
             qTextContainer.appendChild(qTitleBlock);
 
-            // 3층: 예시 구역 (작은 15px 크기, 얇은 굵기 400, 불투명도 85% 흰색 세트화 + 줄바꿈 완벽 노출)
+            // 3층: 예시 구역 (불투명 흰색)
             if(qData.example && qData.example.trim() !== "") {
                 const exampleBlock = document.createElement('div');
                 exampleBlock.style.fontSize = "15px";
@@ -206,12 +199,12 @@
                 exampleBlock.style.color = "rgba(255, 255, 255, 0.85)";
                 exampleBlock.style.marginTop = "14px";
                 exampleBlock.style.lineHeight = "1.6";
-                exampleBlock.style.whiteSpace = "pre-line"; // 예시 데이터 내 내부 줄바꿈(\n) 완벽 보장
+                exampleBlock.style.whiteSpace = "pre-line";
                 exampleBlock.innerText = qData.example;
                 qTextContainer.appendChild(exampleBlock);
             }
 
-            // 4층: 유저에게 묻는 질문 구역 (3층 예시 구역과 완전히 동일하게 15px, 얇은 굵기 400, 불투명도 85% 흰색 세트화)
+            // 4층: 행동 유도 질문 구역
             if(qData.action && qData.action.trim() !== "") {
                 const actionBlock = document.createElement('div');
                 actionBlock.style.fontSize = "15px";
@@ -272,7 +265,6 @@
                 try {
                     const korGender = userGender === 'male' ? '남성' : '여성';
                     const korType = resultData[finalType].title;
-                    // 테이블 칼럼 구조 매칭 데이터 적재
                     await _supabase.from('test_results').insert([{ gender: korGender, result_type: korType }]);
                     await fetchAndRenderStats();
                 } catch (err) {
@@ -294,7 +286,7 @@
         }
 
         async function fetchAndRenderStats() {
-            if (!_supabase) return;
+            if (!_supabase) { useDummyStats(); return; }
             try {
                 const { data, error } = await _supabase.from('test_results').select('gender, result_type');
                 if (error) throw error;
@@ -311,8 +303,11 @@
                         else if (row.result_type && row.result_type.includes('치킨')) cCount++;
                     });
                     renderBars(total, mCount, fCount, jCount, rCount, cCount);
+                } else {
+                    useDummyStats();
                 }
             } catch (err) {
+                console.warn("통계 렌더링 실패, 데모 모드로 전환:", err.message);
                 useDummyStats();
             }
         }
@@ -407,7 +402,6 @@
         .option-btn.opt-hover-3:hover { border-color: #02076D !important; background: rgba(2, 7, 109, 0.15) !important; box-shadow: 0 0 20px rgba(2, 7, 109, 0.45) !important; }
         .btn-prev { background: transparent; border: 1px solid rgba(255, 255, 255, 0.3); color: #FFFFFF; padding: 14px 24px; border-radius: 12px; cursor: pointer; font-size: 15px; display: block; margin: 0 auto; }
 
-        /* ★ 테스트 질문창 전용 파트너사 로고 배치용 컨테이너 추가 */
         .test-partner-logos { display: flex; justify-content: center; align-items: center; gap: 24px; margin-top: 32px; padding-top: 16px; border-top: 1px solid rgba(255, 255, 255, 0.1); }
         .test-partner-logos img { height: 26px; max-width: 100px; object-fit: contain; opacity: 0.65; transition: opacity 0.2s; }
         .test-partner-logos img:hover { opacity: 1; }
@@ -501,7 +495,7 @@
                         <div>
                             <div class="preview-name">🍗 순살치킨형</div>
                             <div class="preview-sub">함께일 때 즐거운 분위기 메이커</div>
-                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">게임은 소통 och 연대의 경험입니다.</p>
+                            <p class="section-desc" style="font-size:13px; line-height:1.5; margin-bottom:8px;">게임은 소통과 연대의 경험입니다.</p>
                             <ul class="checklist">
                                 <li>✔ 함께하는 게임을 좋아한다</li>
                                 <li>✔ 협동 플레이를 즐긴다</li>
@@ -525,11 +519,11 @@
                 <p class="gender-desc-thin">결과 통계 및 성비 데이터 도출을 위해 기록됩니다.</p>
                 <div class="gender-container">
                     <div class="gender-option" id="gender-m" onclick="selectGender('male')">
-                        <img src="char-male.png" alt="남자">
+                        <img src="re_ady.png" alt="남자">
                         <span style="font-size: 16px; font-weight: bold;">👦 남성</span>
                     </div>
                     <div class="gender-option" id="gender-f" onclick="selectGender('female')">
-                        <img src="char-female.png" alt="여자">
+                        <img src="re_ady.png" alt="여자">
                         <span style="font-size: 16px; font-weight: bold;">👧 여성</span>
                     </div>
                 </div>
